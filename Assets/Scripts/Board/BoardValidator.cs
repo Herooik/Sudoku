@@ -17,7 +17,7 @@ namespace BoardValidator
 
 				int row = cell.CellPosition.Row;
 				int col = cell.CellPosition.Column;
-				int value = cell.Value;
+				int value = cell.ActualValue;
 
 				if (!cell.IsEmpty())
 				{

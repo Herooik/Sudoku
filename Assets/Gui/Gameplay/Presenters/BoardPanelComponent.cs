@@ -12,9 +12,16 @@ namespace Gui.Gameplay.Presenters
 		private readonly List<CellPresenter> _cellPresenters = new();
 		private int _columns = 9;
 		private int _rows = 9;
+		private CellPresenter _selectedCell;
+		private SudokuBoard _sudokuBoard;
 
 		public void Initialize(SudokuBoard sudokuBoard)
 		{
+			// todo instantiate groupboxes and then cells inside them
+			// we can control then groupbox to check if there is a a value etc.
+
+			_sudokuBoard = sudokuBoard;
+
 			float width = _holder.rect.width / _columns;
 
 			_cellPresenters.Clear();
@@ -36,35 +43,42 @@ namespace Gui.Gameplay.Presenters
 				float posY = -(row * width + width / 2);
 				cellPresenter.RectTransform.anchoredPosition = new Vector2(posX, posY);
 
-				cellPresenter.Setup(cell, OnClick);
+				cellPresenter.Setup(cell, OnSelectCell);
 				_cellPresenters.Add(cellPresenter);
 			}
 
-			OnClick(_cellPresenters[Random.Range(0, _cellPresenters.Count)]);
+			OnSelectCell(_cellPresenters[Random.Range(0, _cellPresenters.Count)]);
 		}
 
-		private CellPresenter _selectedCell;
-
-		private void OnClick(CellPresenter selectedCell)
+		private void OnSelectCell(CellPresenter selectedCell)
 		{
+			if (_selectedCell != null)
+				_selectedCell.Deselect();
+
 			foreach (CellPresenter cellPresenter in _cellPresenters)
 			{
-				// todo: consider to move condition to CellPresenter.cs
+				cellPresenter.Deselect();
+			}
+
+			foreach (CellPresenter cellPresenter in _cellPresenters)
+			{
 				if (!cellPresenter.Cell.IsEmpty())
 				{
-					if (cellPresenter.Cell.Value == selectedCell.Cell.Value)
+					if (cellPresenter.Cell.ActualValue == selectedCell.Cell.ActualValue)
 					{
-						cellPresenter.ShowAsDuplicate();
-					}
-					else
-					{
-						cellPresenter.Deselect();
+						cellPresenter.ShowSameCellNumber();
 					}
 				}
 			}
 
-			if (_selectedCell != null)
-				_selectedCell.Deselect();
+			foreach (CellPresenter cellPresenter in _cellPresenters)
+			{
+				if (cellPresenter.Cell.CellPosition.Row == selectedCell.Cell.CellPosition.Row ||
+				    cellPresenter.Cell.CellPosition.Column == selectedCell.Cell.CellPosition.Column)
+				{
+					cellPresenter.ShowSameRowAndColumn();
+				}
+			}
 
 			_selectedCell = selectedCell;
 			_selectedCell.Select();

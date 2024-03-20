@@ -28,7 +28,7 @@ namespace GridSolver
 				{
 					if (_sudokuBoard.IsValidValueForTheCell(number, cell))
 					{
-						sudokuBoard.SetCellValue(cell.Index, number);
+						cell.SetValue(number);
 
 						if (_sudokuBoard.IsFullFilled())
 						{
@@ -40,7 +40,7 @@ namespace GridSolver
 							return true;
 						}
 
-						sudokuBoard.SetCellValue(cell.Index, -1);
+						cell.SetValue(-1);
 					}
 				}
 

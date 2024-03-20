@@ -16,26 +16,40 @@
 
 		public int Index { get; private set; }
 		public int GroupBox { get; private set; }
-		public int Value { get; private set; }
+		public int ActualValue { get; private set; }
+		public int ExpectedValue { get; private set; }
 		public Position CellPosition { get; private set; }
 
 		public Cell(int index, int row, int column, int groupBox, int value)
 		{
 			Index = index;
 			GroupBox = groupBox;
-			Value = value;
+			ActualValue = value;
+			ExpectedValue = ActualValue;
 
 			CellPosition = new Position(row, column);
 		}
 
 		public bool IsEmpty()
 		{
-			return Value <= 0;
+			return ActualValue <= 0;
 		}
 
 		public void SetValue(int value)
 		{
-			Value = value;
+			ActualValue = value;
+		}
+
+		public bool CanPlaceValue(int val)
+		{
+			return ExpectedValue == val;
+		}
+
+		// todo change name of method
+		public void SetAsEmpty(int expectedValue)
+		{
+			ExpectedValue = expectedValue;
+			ActualValue = 0;
 		}
 	}
 }

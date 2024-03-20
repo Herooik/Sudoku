@@ -41,7 +41,7 @@ namespace Gui.Gameplay.Presenters
 
 		private void Refresh()
 		{
-			_valueText.SetText(_cell.IsEmpty() ? string.Empty : _cell.Value.ToString());
+			_valueText.SetText(_cell.IsEmpty() ? string.Empty : _cell.ActualValue.ToString());
 		}
 
 		public void Deselect()
@@ -54,9 +54,14 @@ namespace Gui.Gameplay.Presenters
 			_image.color = Color.cyan;
 		}
 
-		public void ShowAsDuplicate()
+		public void ShowSameCellNumber()
 		{
 			_image.color = Color.gray;
+		}
+
+		public void ShowSameRowAndColumn()
+		{
+			_image.color = Color.yellow;
 		}
 	}
 }

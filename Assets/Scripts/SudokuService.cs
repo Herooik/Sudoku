@@ -9,7 +9,7 @@ public class SudokuService : ISudokuService
 		_sudokuBoard.InitializeCells();
 		GridSolver.GridSolver gridSolver = new(_sudokuBoard);
 		gridSolver.Solve(_sudokuBoard);
-		RemoveRandomCellsHandler.RemoveRandomCellsFromGrid(_sudokuBoard.Cells, 20);
+		RemoveRandomCellsHandler.RemoveRandomCellsFromBoard(_sudokuBoard.Cells, 20);
 		return _sudokuBoard;
 	}
 }
