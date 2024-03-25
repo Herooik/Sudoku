@@ -19,7 +19,7 @@ public static class RemoveRandomCellsHandler
 				index = random.Next(0, sudokuBoardCells.Count - 1);
 			}
 
-			sudokuBoardCells[index].SetAsEmpty(sudokuBoardCells[index].ActualValue);
+			sudokuBoardCells[index].SetAsEmpty();
 		}
 	}
 }

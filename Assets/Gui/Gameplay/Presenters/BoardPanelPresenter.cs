@@ -1,36 +1,31 @@
+using System;
 using System.Collections.Generic;
 using Board;
 using UnityEngine;
 
 namespace Gui.Gameplay.Presenters
 {
-	public class BoardPanelComponent : MonoBehaviour
+	public class BoardPanelPresenter : MonoBehaviour
 	{
 		[SerializeField] private RectTransform _holder;
 		[SerializeField] private GameObject _cellObj;
 
 		private readonly List<CellPresenter> _cellPresenters = new();
-		private int _columns = 9;
-		private int _rows = 9;
-		private CellPresenter _selectedCell;
-		private SudokuBoard _sudokuBoard;
 
-		public void Initialize(SudokuBoard sudokuBoard)
+		public void Initialize(int columns, IEnumerable<Cell> cells, Action<Cell> onSelectCell)
 		{
 			// todo instantiate groupboxes and then cells inside them
 			// we can control then groupbox to check if there is a a value etc.
 
-			_sudokuBoard = sudokuBoard;
-
-			float width = _holder.rect.width / _columns;
+			float width = _holder.rect.width / columns;
 
 			_cellPresenters.Clear();
-			foreach (Cell cell in sudokuBoard.Cells)
+			foreach (Cell cell in cells)
 			{
 				int row = cell.CellPosition.Row;
 				int column = cell.CellPosition.Column;
 
-				GameObject cellObj = Instantiate(_cellObj, _holder);
+				GameObject cellObj = Instantiate(_cellObj, _holder); // todo create a factory
 				cellObj.name = $"[{row}, {column}]";
 
 				CellPresenter cellPresenter = cellObj.GetComponent<CellPresenter>();
@@ -43,18 +38,15 @@ namespace Gui.Gameplay.Presenters
 				float posY = -(row * width + width / 2);
 				cellPresenter.RectTransform.anchoredPosition = new Vector2(posX, posY);
 
-				cellPresenter.Setup(cell, OnSelectCell);
+				cellPresenter.Setup(cell, () => onSelectCell?.Invoke(cell)); // todo add IDisposable
 				_cellPresenters.Add(cellPresenter);
 			}
-
-			OnSelectCell(_cellPresenters[Random.Range(0, _cellPresenters.Count)]);
 		}
 
-		private void OnSelectCell(CellPresenter selectedCell)
+		public void Refresh(Cell selectedCell)
 		{
-			if (_selectedCell != null)
-				_selectedCell.Deselect();
-
+			//todo refactor this
+			_cellPresenters[selectedCell.Index].Refresh();
 			foreach (CellPresenter cellPresenter in _cellPresenters)
 			{
 				cellPresenter.Deselect();
@@ -64,7 +56,7 @@ namespace Gui.Gameplay.Presenters
 			{
 				if (!cellPresenter.Cell.IsEmpty())
 				{
-					if (cellPresenter.Cell.ActualValue == selectedCell.Cell.ActualValue)
+					if (cellPresenter.Cell.ActualValue == selectedCell.ActualValue)
 					{
 						cellPresenter.ShowSameCellNumber();
 					}
@@ -73,15 +65,14 @@ namespace Gui.Gameplay.Presenters
 
 			foreach (CellPresenter cellPresenter in _cellPresenters)
 			{
-				if (cellPresenter.Cell.CellPosition.Row == selectedCell.Cell.CellPosition.Row ||
-				    cellPresenter.Cell.CellPosition.Column == selectedCell.Cell.CellPosition.Column)
+				if (cellPresenter.Cell.CellPosition.Row == selectedCell.CellPosition.Row ||
+				    cellPresenter.Cell.CellPosition.Column == selectedCell.CellPosition.Column)
 				{
 					cellPresenter.ShowSameRowAndColumn();
 				}
 			}
 
-			_selectedCell = selectedCell;
-			_selectedCell.Select();
+			_cellPresenters[selectedCell.Index].Select();
 		}
 	}
 }

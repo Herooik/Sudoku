@@ -12,9 +12,8 @@ namespace Gui.Gameplay.Presenters
 		{
 			get
 			{
-				if (_rectTransform != null)
-					return _rectTransform;
-				_rectTransform = GetComponent<RectTransform>();
+				if (_rectTransform == null) 
+					_rectTransform = GetComponent<RectTransform>();
 				return _rectTransform;
 			}
 		}
@@ -28,18 +27,18 @@ namespace Gui.Gameplay.Presenters
 		private Cell _cell;
 		private RectTransform _rectTransform;
 
-		public void Setup(Cell cell, Action<CellPresenter> onClick)
+		public void Setup(Cell cell, Action onClick)
 		{
 			_cell = cell;
 			_button.onClick.AddListener(() =>
 			{
-				onClick?.Invoke(this);
+				onClick?.Invoke();
 			});
 
 			Refresh();
 		}
 
-		private void Refresh()
+		public void Refresh()
 		{
 			_valueText.SetText(_cell.IsEmpty() ? string.Empty : _cell.ActualValue.ToString());
 		}

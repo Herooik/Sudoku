@@ -1,8 +1,7 @@
 using System.Collections.Generic;
-using Board;
 using NumberGenerator;
 
-namespace GridSolver
+namespace Board
 {
 	public class GridSolver
 	{
@@ -26,7 +25,7 @@ namespace GridSolver
 
 				foreach (int number in _numberList)
 				{
-					if (_sudokuBoard.IsValidValueForTheCell(number, cell))
+					if (_sudokuBoard.CanPlaceValue(number, cell) == SudokuBoard.Result.OK)
 					{
 						cell.SetValue(number);
 

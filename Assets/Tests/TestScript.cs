@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System;
 using System.Linq;
 using Board;
 using NUnit.Framework;
@@ -13,7 +13,8 @@ namespace Tests
 		public void Setup()
 		{
 			_board = new SudokuBoard();
-			_board.InitializeCells();
+			DisplayGridConfig rules = SudokuGridRules.GetRules(SudokuType.NINE_BY_NINE);
+			_board.InitializeCells(rules.Rows, rules.Columns);
 		}
 
 		[Test]
@@ -24,45 +25,66 @@ namespace Tests
 		}
 
 		[Test]
-		public void IsBoardFullFilled()
+		public void GenerateSolvableGrid()
 		{
-			foreach (Cell cell in _board.Cells)
-			{
-				cell.SetValue(1);
-			}
+			ISudokuService sudokuService = new SudokuService();
+			SudokuBoard sudokuBoard = sudokuService.CreateSolvableBoard(SudokuType.NINE_BY_NINE);
+			GridSolver gridSolver = new GridSolver(sudokuBoard);
+
+			gridSolver.Solve(sudokuBoard);
 
 			Assert.That(_board.IsFullFilled(), Is.True);
 		}
 
 		[Test]
-		public void GenerateSolvableGrid()
-		{
-			ISudokuService sudokuService = new SudokuService();
-			BoardValidator.BoardValidator gridValidator = new BoardValidator.BoardValidator();
-			SudokuBoard sudokuBoard = sudokuService.GetSolvableBoard();
-			GridSolver.GridSolver gridSolver = new GridSolver.GridSolver(sudokuBoard);
-
-			gridSolver.Solve(sudokuBoard);
-
-			Assert.That(gridValidator.ValidateGrid(sudokuBoard.Cells), Is.True);
-		}
-
-		[Test]
 		public void PlaceValidExpectedValue()
 		{
-			Cell cell = new Cell(0, 0, 0, 0, 0);
-			cell.SetAsEmpty(1);
+			GridSolver gridSolver = new(_board);
 
-			Assert.That(cell.CanPlaceValue(1), Is.True);
+			gridSolver.Solve(_board);
+			int value = _board.Cells[0].ActualValue;
+			_board.Cells[0].SetAsEmpty();
+
+			Assert.That(_board.CanPlaceValue(value, _board.Cells[0]), Is.True);
 		}
 
 		[Test]
 		public void PlaceInvalidExpectedValue()
 		{
-			Cell cell = new Cell(0, 0, 0, 0, 0);
-			cell.SetAsEmpty(1);
+			Random random = new Random();
+			GridSolver gridSolver = new(_board);
 
-			Assert.That(cell.CanPlaceValue(3), Is.False);
+			gridSolver.Solve(_board);
+			int value = _board.Cells[0].ActualValue;
+			// Generate the opposite value within the range [1, 9] excluding the original value
+			int oppositeValue;
+			do
+			{
+				oppositeValue = random.Next(1, 10);
+			} while (oppositeValue == value);
+			_board.Cells[0].SetAsEmpty();
+
+			Assert.That(_board.CanPlaceValue(oppositeValue, _board.Cells[0]), Is.False);
+		}
+
+		[Test]
+		public void ValuesToPlace()
+		{
+			PlayerNumberPlacement playerNumberPlacement = new PlayerNumberPlacement(_board.Columns);
+			GridSolver gridSolver = new(_board);
+
+			gridSolver.Solve(_board);
+			_board.Cells[0].SetAsEmpty();
+
+			for (int i = 1; i <= _board.Columns; i++)
+			{
+				if (_board.IsValueReachMaxOutUsed(i))
+				{
+					playerNumberPlacement.RemoveNumber(i);
+				}
+			}
+
+			Assert.That(playerNumberPlacement.AvailableNumbers.Count, Is.EqualTo(1));
 		}
 	}
 }

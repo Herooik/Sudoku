@@ -1,32 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace Board
 {
 	public class SudokuBoard
 	{
+		public int Columns { get; private set; }
 		public IReadOnlyList<Cell> Cells => _cells;
 
 		private readonly List<Cell> _cells = new();
 
 		// todo: make support for other grid types 6x6, 8x8 etc.
-		public void InitializeCells()
+		public void InitializeCells(int rows, int columns)
 		{
+			Columns = columns;
 			_cells.Clear();
-
-			int rows = 9;
-			int columns = 9;
 
 			for (int row = 0; row < rows; row++)
 			{
 				for (int column = 0; column < columns; column++)
 				{
-					_cells.Add(new(
+					int groupBox = (row / 3) + 3 * (column / 3) + 1;
+					_cells.Add(new Cell(
 						row * rows + column,
 						row,
 						column,
-						(row / 3) + 3 * (column / 3) + 1,
+						groupBox,
 						-1));
 				}
 			}
@@ -37,62 +36,64 @@ namespace Board
 			return _cells.All(cell => !cell.IsEmpty());
 		}
 
-		public bool IsValidValueForTheCell(int val, Cell cell)
+		public bool IsValueReachMaxOutUsed(int value) //todo CHANGE NAME
 		{
-			if (_cells.Where(c => c.Index != cell.Index && c.GroupBox == cell.GroupBox).FirstOrDefault(c2 => c2.ActualValue == val) != null)
-				return false;
-
-			if (IsValueInRow(val, cell.CellPosition.Row))
-				return false;
-
-			if (IsValueInColumn(val, cell.CellPosition.Column))
-				return false;
-
-			return true;
+			int count = _cells.Count(cell => cell.ActualValue == value);
+			return count == Columns;
 		}
 
-		private bool IsValueInRow(int val, int cellPositionRow)
+		public enum Result
 		{
-			foreach (Cell c in GetCellsInRow(cellPositionRow))
+			OK,
+			DUPLICATE_IN_SUB_BOX,
+			DUPLICATE_IN_ROW,
+			DUPLICATE_IN_COLUMN,
+		}
+
+		public Result CanPlaceValue(int valueToPlace, Cell cellToPlace)
+		{
+			HashSet<(int, int)> rows = new();
+			HashSet<(int, int)> columns = new();
+			HashSet<(int, int, int)> subGrids = new();
+			foreach (Cell cell in _cells.Where(cell => !cell.IsEmpty()))
 			{
-				if (c.ActualValue == val)
+				// Skip the cell we're checking
+				if (cell.CellPosition.Row == cellToPlace.CellPosition.Row &&
+				    cell.CellPosition.Column == cellToPlace.CellPosition.Column)
+					continue;
+
+				if (!rows.Add((cell.CellPosition.Row, cell.ActualValue)))
 				{
-					return true;
+					return Result.DUPLICATE_IN_ROW;
+				}
+
+				if (!columns.Add((cell.CellPosition.Column, cell.ActualValue)))
+				{
+					return Result.DUPLICATE_IN_COLUMN;
+				}
+
+				if (!subGrids.Add((cell.CellPosition.Row / 3, cell.CellPosition.Column / 3, cell.ActualValue)))
+				{
+					return Result.DUPLICATE_IN_SUB_BOX;
 				}
 			}
-			return false;
-		}
 
-		private bool IsValueInColumn(int val, int cellPositionColumn)
-		{
-			foreach (Cell c in GetCellsInColumn(cellPositionColumn))
+			if (!rows.Add((cellToPlace.CellPosition.Row, valueToPlace)))
 			{
-				if (c.ActualValue == val)
-				{
-					return true;
-				}
-			}
-			return false;
-		}
-
-		private IEnumerable<Cell> GetCellsInRow(int row)
-		{
-			if (row is < 0 or >= 9)
-			{
-				throw new ArgumentException("Row number must be between 0 and 8.");
+				return Result.DUPLICATE_IN_ROW;
 			}
 
-			return _cells.Where(cell => cell.CellPosition.Row == row);
-		}
-
-		private IEnumerable<Cell> GetCellsInColumn(int column)
-		{
-			if (column is < 0 or >= 9)
+			if (!columns.Add((cellToPlace.CellPosition.Column, valueToPlace)))
 			{
-				throw new ArgumentException("Row number must be between 0 and 8.");
+				return Result.DUPLICATE_IN_COLUMN;
 			}
 
-			return _cells.Where(cell => cell.CellPosition.Column == column);
+			if (!subGrids.Add((cellToPlace.CellPosition.Row / 3, cellToPlace.CellPosition.Column / 3, valueToPlace)))
+			{
+				return Result.DUPLICATE_IN_SUB_BOX;
+			}
+
+			return Result.OK;
 		}
 	}
 }

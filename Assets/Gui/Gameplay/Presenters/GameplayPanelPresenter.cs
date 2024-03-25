@@ -6,18 +6,37 @@ namespace Gui.Gameplay.Presenters
 {
 	public class GameplayPanelPresenter : MonoBehaviour
 	{
-		[FormerlySerializedAs("_gridPanelComponent")] [SerializeField] private BoardPanelComponent _boardPanelComponent;
+		[SerializeField] private BoardPanelPresenter _boardPanelPresenter;
+		[FormerlySerializedAs("_numbersToPlacePresenter")] [SerializeField] private PlayerNumberPlacementPresenter _playerNumberPlacementPresenter;
 
 		private GameplayPanelModel _model;
 
-		public void Init(GameplayPanelModel model)
+		public void Bind(GameplayPanelModel model)
 		{
 			_model = model;
-			_model.Setup += Setup;
+
+			_model.Setup += OnSetup;
+			_model.Refresh += OnRefresh;
 		}
 
-		private void Setup()
+		private void OnDisable()
 		{
+			_model.Setup -= OnSetup;
+			_model.Refresh -= OnRefresh;
+		}
+
+		private void OnSetup()
+		{
+			_boardPanelPresenter.Initialize(9, _model.Cells, _model.SelectCell);
+			_playerNumberPlacementPresenter.Initialize(_model.Numbers, _model.PlaceNumber);
+
+			OnRefresh();
+		}
+
+		private void OnRefresh()
+		{
+			_boardPanelPresenter.Refresh(_model.SelectedCell);
+			_playerNumberPlacementPresenter.Refresh();
 		}
 	}
 }

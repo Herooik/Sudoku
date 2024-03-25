@@ -30,7 +30,7 @@ public struct DisplayGridConfig
 
 public static class SudokuGridRules
 {
-	public static DisplayGridConfig GetDisplayGridConfig(SudokuType sudokuType)
+	public static DisplayGridConfig GetRules(SudokuType sudokuType)
 	{
 		switch (sudokuType)
 		{
@@ -50,6 +50,7 @@ public static class SudokuGridRules
 
 		throw new ArgumentOutOfRangeException(nameof(sudokuType), sudokuType, null);
 	}
+
 	public static DisplayGridConfig FOUR_BY_FOUR = new DisplayGridConfig()
 	{
 		Columns = 4,
