@@ -27,7 +27,7 @@ namespace Gui.Gameplay.Presenters
 
 		private void OnSetup()
 		{
-			_boardPanelPresenter.Initialize(9, _model.Cells, _model.SelectCell);
+			_boardPanelPresenter.Initialize(9, _model._cellDisplays, _model.SelectCell);
 			_playerNumberPlacementPresenter.Initialize(_model.Numbers, _model.PlaceNumber);
 
 			OnRefresh();
@@ -35,7 +35,7 @@ namespace Gui.Gameplay.Presenters
 
 		private void OnRefresh()
 		{
-			_boardPanelPresenter.Refresh(_model.SelectedCell);
+			_boardPanelPresenter.Refresh(_model._cellDisplays);
 			_playerNumberPlacementPresenter.Refresh();
 		}
 	}

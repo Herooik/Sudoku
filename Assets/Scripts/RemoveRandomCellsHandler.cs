@@ -14,12 +14,12 @@ public static class RemoveRandomCellsHandler
 		for (int i = 0; i < cellsToRemove; i++)
 		{
 			int index = 0;
-			while (sudokuBoardCells[index].ActualValue == 0)
+			while (sudokuBoardCells[index].IsEmpty())
 			{
 				index = random.Next(0, sudokuBoardCells.Count - 1);
 			}
 
-			sudokuBoardCells[index].SetAsEmpty();
+			sudokuBoardCells[index].RemoveValue();
 		}
 	}
 }

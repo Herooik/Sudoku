@@ -25,7 +25,7 @@ namespace Board
 
 				foreach (int number in _numberList)
 				{
-					if (_sudokuBoard.CanPlaceValue(number, cell) == SudokuBoard.Result.OK)
+					if (_sudokuBoard.CanPlaceValue(number, cell) == SudokuBoard.PlaceValueResult.OK)
 					{
 						cell.SetValue(number);
 

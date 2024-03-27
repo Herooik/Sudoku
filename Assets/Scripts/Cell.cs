@@ -1,30 +1,22 @@
 ﻿public class Cell
 {
-	public readonly struct Position
-	{
-		public readonly int Row;
-		public readonly int Column;
-
-		public Position(int row, int column)
-		{
-			Row = row;
-			Column = column;
-		}
-	}
-
-	public int Index { get; private set; }
-	public int GroupBox { get; private set; }
 	public int ActualValue { get; private set; }
-	public Position CellPosition { get; private set; }
-	public bool IsRemoved { get; private set; }
+	public bool IsPlacedByGenerator { get; private set; } = true;
+
+	public readonly int Index;
+	public readonly int GroupBox;
+	public readonly int Row;
+	public readonly int Column;
+
+	private int _expectedValue;
 
 	public Cell(int index, int row, int column, int groupBox, int value)
 	{
 		Index = index;
 		GroupBox = groupBox;
 		ActualValue = value;
-
-		CellPosition = new Position(row, column);
+		Row = row;
+		Column = column;
 	}
 
 	public bool IsEmpty()
@@ -37,9 +29,15 @@
 		ActualValue = value;
 	}
 
-	public void SetAsEmpty()
+	public void RemoveValue()
 	{
-		IsRemoved = true;
-		ActualValue = 0;
+		IsPlacedByGenerator = false;
+		_expectedValue = ActualValue;
+		ActualValue = -1;
+	}
+
+	public bool IsPlacedGoodValue()
+	{
+		return ActualValue == _expectedValue;
 	}
 }

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Board;
 using UnityEngine;
 
 namespace Gui.Gameplay.Presenters
@@ -12,7 +11,7 @@ namespace Gui.Gameplay.Presenters
 
 		private readonly List<CellPresenter> _cellPresenters = new();
 
-		public void Initialize(int columns, IEnumerable<Cell> cells, Action<Cell> onSelectCell)
+		public void Initialize(int columns, IEnumerable<CellData> cells, Action<int> onSelectCell)
 		{
 			// todo instantiate groupboxes and then cells inside them
 			// we can control then groupbox to check if there is a a value etc.
@@ -20,10 +19,10 @@ namespace Gui.Gameplay.Presenters
 			float width = _holder.rect.width / columns;
 
 			_cellPresenters.Clear();
-			foreach (Cell cell in cells)
+			foreach (CellData cellDisplay in cells)
 			{
-				int row = cell.CellPosition.Row;
-				int column = cell.CellPosition.Column;
+				int row = cellDisplay.Row;
+				int column = cellDisplay.Column;
 
 				GameObject cellObj = Instantiate(_cellObj, _holder); // todo create a factory
 				cellObj.name = $"[{row}, {column}]";
@@ -38,41 +37,17 @@ namespace Gui.Gameplay.Presenters
 				float posY = -(row * width + width / 2);
 				cellPresenter.RectTransform.anchoredPosition = new Vector2(posX, posY);
 
-				cellPresenter.Setup(cell, () => onSelectCell?.Invoke(cell)); // todo add IDisposable
+				cellPresenter.Setup(() => onSelectCell.Invoke(cellDisplay.Index)); // todo add IDisposable
 				_cellPresenters.Add(cellPresenter);
 			}
 		}
 
-		public void Refresh(Cell selectedCell)
+		public void Refresh(IReadOnlyList<CellData> allCells)
 		{
-			//todo refactor this
-			_cellPresenters[selectedCell.Index].Refresh();
-			foreach (CellPresenter cellPresenter in _cellPresenters)
+			for (int i = 0; i < _cellPresenters.Count; i++)
 			{
-				cellPresenter.Deselect();
+				_cellPresenters[i].Refresh(allCells[i]);
 			}
-
-			foreach (CellPresenter cellPresenter in _cellPresenters)
-			{
-				if (!cellPresenter.Cell.IsEmpty())
-				{
-					if (cellPresenter.Cell.ActualValue == selectedCell.ActualValue)
-					{
-						cellPresenter.ShowSameCellNumber();
-					}
-				}
-			}
-
-			foreach (CellPresenter cellPresenter in _cellPresenters)
-			{
-				if (cellPresenter.Cell.CellPosition.Row == selectedCell.CellPosition.Row ||
-				    cellPresenter.Cell.CellPosition.Column == selectedCell.CellPosition.Column)
-				{
-					cellPresenter.ShowSameRowAndColumn();
-				}
-			}
-
-			_cellPresenters[selectedCell.Index].Select();
 		}
 	}
 }

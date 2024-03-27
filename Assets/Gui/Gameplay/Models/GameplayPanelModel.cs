@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Board;
-using UnityEngine;
-using Random = UnityEngine.Random;
 
 namespace Gui.Gameplay.Models
 {
@@ -11,20 +8,22 @@ namespace Gui.Gameplay.Models
 		public event Action Setup;
 		public event Action Refresh;
 
-		public IEnumerable<Cell> Cells => _sudokuBoard.Cells;
-		public Cell SelectedCell { get; private set; }
+		public IReadOnlyList<CellData> _cellDisplays;
 		public IEnumerable<int> Numbers => _playerNumberPlacement.AvailableNumbers;
 
-		private readonly SudokuService _sudokuService = new();
-		private readonly SudokuBoard _sudokuBoard; //todo consider move to SudokuService
+		private readonly ISudokuService _sudokuService = new SudokuService();
 		private readonly PlayerNumberPlacement _playerNumberPlacement;
+
+		private int _selectedCellIndex;
 
 		public GameplayPanelModel()
 		{
-			_sudokuBoard = _sudokuService.CreateSolvableBoard(SudokuType.NINE_BY_NINE);
-			_playerNumberPlacement = new PlayerNumberPlacement(_sudokuBoard.Columns);
+			_cellDisplays = _sudokuService.Initialize(SudokuType.NINE_BY_NINE);
 
-			SelectedCell = _sudokuBoard.Cells[Random.Range(0, _sudokuBoard.Cells.Count)];
+			Random random = new();
+			_selectedCellIndex = _cellDisplays[random.Next(0, _cellDisplays.Count)].Index;
+
+			_playerNumberPlacement = new PlayerNumberPlacement(9);
 		}
 
 		public void Show()
@@ -32,29 +31,18 @@ namespace Gui.Gameplay.Models
 			Setup?.Invoke();
 		}
 
-		public void SelectCell(Cell cell)
+		public void SelectCell(int selectedCellIndex)
 		{
-			SelectedCell = cell;
+			_cellDisplays = _sudokuService.GetCellDisplays(selectedCellIndex);
+			_selectedCellIndex = _cellDisplays[selectedCellIndex].Index;
 
 			Refresh?.Invoke();
 		}
 
 		public void PlaceNumber(int number)
 		{
-			if (!SelectedCell.IsRemoved) return;
-
-			if(SelectedCell.ActualValue == number)
-			{
-				SelectedCell.SetAsEmpty();
-			}
-			else
-			{
-				SelectedCell.SetValue(number);
-			}
-
-			SudokuBoard.Result isValidValueForTheCell = _sudokuBoard.CanPlaceValue(number, SelectedCell);
-			Debug.LogWarning(isValidValueForTheCell);
-
+			_sudokuService.PlaceNumber(number, _selectedCellIndex);
+			_cellDisplays = _sudokuService.GetCellDisplays(_selectedCellIndex);
 			Refresh?.Invoke();
 		}
 	}

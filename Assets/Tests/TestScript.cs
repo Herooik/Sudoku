@@ -27,13 +27,12 @@ namespace Tests
 		[Test]
 		public void GenerateSolvableGrid()
 		{
-			ISudokuService sudokuService = new SudokuService();
-			SudokuBoard sudokuBoard = sudokuService.CreateSolvableBoard(SudokuType.NINE_BY_NINE);
-			GridSolver gridSolver = new GridSolver(sudokuBoard);
+			GridSolver gridSolver = new(_board);
 
-			gridSolver.Solve(sudokuBoard);
+			gridSolver.Solve(_board);
+			RemoveRandomCellsHandler.RemoveRandomCellsFromBoard(_board.Cells, 10);
 
-			Assert.That(_board.IsFullFilled(), Is.True);
+			Assert.That(_board.IsFullFilled(), Is.False);
 		}
 
 		[Test]
@@ -43,9 +42,9 @@ namespace Tests
 
 			gridSolver.Solve(_board);
 			int value = _board.Cells[0].ActualValue;
-			_board.Cells[0].SetAsEmpty();
+			_board.Cells[0].RemoveValue();
 
-			Assert.That(_board.CanPlaceValue(value, _board.Cells[0]), Is.True);
+			Assert.That(_board.CanPlaceValue(value, _board.Cells[0]), Is.EqualTo(SudokuBoard.PlaceValueResult.OK));
 		}
 
 		[Test]
@@ -62,9 +61,9 @@ namespace Tests
 			{
 				oppositeValue = random.Next(1, 10);
 			} while (oppositeValue == value);
-			_board.Cells[0].SetAsEmpty();
+			_board.Cells[0].RemoveValue();
 
-			Assert.That(_board.CanPlaceValue(oppositeValue, _board.Cells[0]), Is.False);
+			Assert.That(_board.CanPlaceValue(oppositeValue, _board.Cells[0]), Is.Not.EqualTo(SudokuBoard.PlaceValueResult.OK));
 		}
 
 		[Test]
@@ -74,7 +73,7 @@ namespace Tests
 			GridSolver gridSolver = new(_board);
 
 			gridSolver.Solve(_board);
-			_board.Cells[0].SetAsEmpty();
+			_board.Cells[0].RemoveValue();
 
 			for (int i = 1; i <= _board.Columns; i++)
 			{

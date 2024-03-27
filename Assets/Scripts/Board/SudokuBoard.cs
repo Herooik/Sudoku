@@ -42,15 +42,16 @@ namespace Board
 			return count == Columns;
 		}
 
-		public enum Result
+		public enum PlaceValueResult
 		{
 			OK,
+			FILLED_BY_SOLVER,
 			DUPLICATE_IN_SUB_BOX,
 			DUPLICATE_IN_ROW,
 			DUPLICATE_IN_COLUMN,
 		}
 
-		public Result CanPlaceValue(int valueToPlace, Cell cellToPlace)
+		public PlaceValueResult CanPlaceValue(int valueToPlace, Cell cellToPlace)
 		{
 			HashSet<(int, int)> rows = new();
 			HashSet<(int, int)> columns = new();
@@ -58,42 +59,42 @@ namespace Board
 			foreach (Cell cell in _cells.Where(cell => !cell.IsEmpty()))
 			{
 				// Skip the cell we're checking
-				if (cell.CellPosition.Row == cellToPlace.CellPosition.Row &&
-				    cell.CellPosition.Column == cellToPlace.CellPosition.Column)
+				if (cell.Row == cellToPlace.Row &&
+				    cell.Column == cellToPlace.Column)
 					continue;
 
-				if (!rows.Add((cell.CellPosition.Row, cell.ActualValue)))
+				if (!rows.Add((cell.Row, cell.ActualValue)))
 				{
-					return Result.DUPLICATE_IN_ROW;
+					return PlaceValueResult.DUPLICATE_IN_ROW;
 				}
 
-				if (!columns.Add((cell.CellPosition.Column, cell.ActualValue)))
+				if (!columns.Add((cell.Column, cell.ActualValue)))
 				{
-					return Result.DUPLICATE_IN_COLUMN;
+					return PlaceValueResult.DUPLICATE_IN_COLUMN;
 				}
 
-				if (!subGrids.Add((cell.CellPosition.Row / 3, cell.CellPosition.Column / 3, cell.ActualValue)))
+				if (!subGrids.Add((cell.Row / 3, cell.Column / 3, cell.ActualValue)))
 				{
-					return Result.DUPLICATE_IN_SUB_BOX;
+					return PlaceValueResult.DUPLICATE_IN_SUB_BOX;
 				}
 			}
 
-			if (!rows.Add((cellToPlace.CellPosition.Row, valueToPlace)))
+			if (!rows.Add((cellToPlace.Row, valueToPlace)))
 			{
-				return Result.DUPLICATE_IN_ROW;
+				return PlaceValueResult.DUPLICATE_IN_ROW;
 			}
 
-			if (!columns.Add((cellToPlace.CellPosition.Column, valueToPlace)))
+			if (!columns.Add((cellToPlace.Column, valueToPlace)))
 			{
-				return Result.DUPLICATE_IN_COLUMN;
+				return PlaceValueResult.DUPLICATE_IN_COLUMN;
 			}
 
-			if (!subGrids.Add((cellToPlace.CellPosition.Row / 3, cellToPlace.CellPosition.Column / 3, valueToPlace)))
+			if (!subGrids.Add((cellToPlace.Row / 3, cellToPlace.Column / 3, valueToPlace)))
 			{
-				return Result.DUPLICATE_IN_SUB_BOX;
+				return PlaceValueResult.DUPLICATE_IN_SUB_BOX;
 			}
 
-			return Result.OK;
+			return PlaceValueResult.OK;
 		}
 	}
 }
