@@ -28,6 +28,90 @@ public class SudokuService : ISudokuService
 
 		Cell selectedCell = _sudokuBoard.Cells[selectedCellIndex];
 
+		// zaznacz wszystko domyslne
+		foreach (Cell cell in _sudokuBoard.Cells)
+		{
+			array[cell.Index] = new CellData(
+					cell.IsEmpty() ? string.Empty : cell.ActualValue.ToString(),
+					cell.Row,
+					cell.Column,
+					cell.Index,
+					CellState.NONE,
+					GetUserPlacedValueState(cell));
+		}
+
+		// zaznacz wszystkie w tej samym rzędzie
+		foreach (Cell cell in _sudokuBoard._rows[selectedCell.Row])
+		{
+			array[cell.Index] = new CellData(
+				cell.IsEmpty() ? string.Empty : cell.ActualValue.ToString(),
+				cell.Row,
+				cell.Column,
+				cell.Index,
+				CellState.SAME_ROW_COLUMN,
+				GetUserPlacedValueState(cell));
+		}
+		// zaznacz wszystkie w tej samej kolumnie
+		foreach (Cell cell in _sudokuBoard._columns[selectedCell.Column])
+		{
+			array[cell.Index] = new CellData(
+				cell.IsEmpty() ? string.Empty : cell.ActualValue.ToString(),
+				cell.Row,
+				cell.Column,
+				cell.Index,
+				CellState.SAME_ROW_COLUMN,
+				GetUserPlacedValueState(cell));
+		}
+		// zaznacz wszystkie w tym samym group box
+		foreach (Cell cell in _sudokuBoard._groupBoxes[selectedCell.GroupBox])
+		{
+			array[cell.Index] = new CellData(
+					cell.IsEmpty() ? string.Empty : cell.ActualValue.ToString(),
+					cell.Row,
+					cell.Column,
+					cell.Index,
+					CellState.SAME_GROUP_BOX,
+					GetUserPlacedValueState(cell));
+		}
+
+		// zaznacz wszystkie te same liczby
+		foreach (Cell cell in _sudokuBoard.Cells)
+		{
+			if (cell.IsEmpty()) continue;
+
+			if (cell.ActualValue == selectedCell.ActualValue)
+			{
+				array[cell.Index] = new CellData(
+					cell.IsEmpty() ? string.Empty : cell.ActualValue.ToString(),
+					cell.Row,
+					cell.Column,
+					cell.Index,
+					CellState.SAME_VALUE,
+					GetUserPlacedValueState(cell));
+			}
+		}
+
+		// zaznacz wszystkie duplikaty w tym samym group box, rzedzie, kolumnie
+		foreach (Cell cell in _sudokuBoard.Cells)
+		{
+			if (cell.IsEmpty()) continue;
+
+			if (cell.ActualValue == selectedCell.ActualValue)
+			{
+				if (cell.Row == selectedCell.Row || cell.Column == selectedCell.Column ||
+				    cell.GroupBox == selectedCell.GroupBox)
+				{
+					array[cell.Index] = new CellData(
+						cell.IsEmpty() ? string.Empty : cell.ActualValue.ToString(),
+						cell.Row,
+						cell.Column,
+						cell.Index,
+						CellState.WRONG_VALUE,
+						GetUserPlacedValueState(cell));
+				}
+			}
+		}
+
 		// Set current selected Cell
 		array[selectedCellIndex] = new CellData(
 			selectedCell.IsEmpty() ? string.Empty : selectedCell.ActualValue.ToString(),
@@ -36,50 +120,6 @@ public class SudokuService : ISudokuService
 			selectedCell.Index,
 			CellState.SELECTED,
 			GetUserPlacedValueState(selectedCell));
-
-		//todo: omg refactor this
-
-		foreach (Cell cell in _sudokuBoard.Cells)
-		{
-			// skip current selected cell
-			if (cell.Index == selectedCell.Index) continue;
-
-			CellState cellState = CellState.NONE;
-			if (cell.Row == selectedCell.Row || cell.Column == selectedCell.Column)
-			{
-				if (cell.ActualValue == selectedCell.ActualValue && !cell.IsEmpty())
-				{
-					cellState = CellState.SAME_VALUE_IN_ROW_AND_COLUMN;
-				}
-				else
-				{
-					cellState = CellState.SAME_ROW_COLUMN;
-				}
-			}
-			else if (cell.GroupBox == selectedCell.GroupBox)
-			{
-				if (cell.ActualValue == selectedCell.ActualValue && !cell.IsEmpty())
-				{
-					cellState = CellState.SAME_VALUE_IN_ROW_AND_COLUMN;
-				}
-				else
-				{
-					cellState = CellState.SAME_GROUP_BOX;
-				}
-			}
-			else if (cell.ActualValue == selectedCell.ActualValue && !cell.IsEmpty())
-			{
-				cellState = CellState.SAME_VALUE;
-			}
-
-			array[cell.Index] = new CellData(
-				cell.IsEmpty() ? string.Empty : cell.ActualValue.ToString(),
-				cell.Row,
-				cell.Column,
-				cell.Index,
-				cellState,
-				GetUserPlacedValueState(cell));
-		}
 
 		return array;
 	}
@@ -124,7 +164,7 @@ public enum CellState // todo change name?
 	NONE,
 	SELECTED,
 	SAME_ROW_COLUMN,
-	SAME_VALUE_IN_ROW_AND_COLUMN,
+	WRONG_VALUE,
 	SAME_VALUE,
 	SAME_GROUP_BOX,
 }

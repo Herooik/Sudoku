@@ -10,6 +10,10 @@ namespace Board
 
 		private readonly List<Cell> _cells = new();
 
+		public Dictionary<int, List<Cell>> _rows = new Dictionary<int, List<Cell>>();
+		public Dictionary<int, List<Cell>> _columns = new Dictionary<int, List<Cell>>();
+		public Dictionary<int, List<Cell>> _groupBoxes = new Dictionary<int, List<Cell>>();
+
 		// todo: make support for other grid types 6x6, 8x8 etc.
 		public void InitializeCells(int rows, int columns)
 		{
@@ -18,15 +22,31 @@ namespace Board
 
 			for (int row = 0; row < rows; row++)
 			{
+				_rows[row] = new List<Cell>();
 				for (int column = 0; column < columns; column++)
 				{
 					int groupBox = (row / 3) + 3 * (column / 3) + 1;
-					_cells.Add(new Cell(
+					Cell cell = new Cell(
 						row * rows + column,
 						row,
 						column,
 						groupBox,
-						-1));
+						-1);
+					_cells.Add(cell);
+					
+					_rows[row].Add(cell);
+
+					if (!_columns.ContainsKey(column))
+					{
+						_columns[column] = new List<Cell>();
+					}
+					_columns[column].Add(cell);
+					
+					if (!_groupBoxes.ContainsKey(groupBox))
+					{
+						_groupBoxes[groupBox] = new List<Cell>();
+					}
+					_groupBoxes[groupBox].Add(cell);
 				}
 			}
 		}

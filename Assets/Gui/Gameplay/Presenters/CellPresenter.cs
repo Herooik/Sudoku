@@ -61,7 +61,7 @@ namespace Gui.Gameplay.Presenters
 				case CellState.SAME_ROW_COLUMN:
 					_image.color = Color.yellow;
 					break;
-				case CellState.SAME_VALUE_IN_ROW_AND_COLUMN:
+				case CellState.WRONG_VALUE:
 					_image.color = new Color(1,.5f, .5f, 1);
 					break;
 				case CellState.SAME_VALUE:
