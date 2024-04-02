@@ -669,7 +669,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _holder: {fileID: 4398707268394113766}
-  _cellObj: {fileID: 554470504485229206, guid: 351b396bceb47a14cb4b57d7163d5bf3, type: 3}
+  _emptyCellPresenter: {fileID: 118004627371537000, guid: d11994b7de20905469831badf96cf6c7, type: 3}
+  _solvedByGeneratorCellPresenter: {fileID: 7938506015385696192, guid: 544dbedf414dea747bcbf6a199f1bbc8, type: 3}
+  _cellFilledByUserInputPresenter: {fileID: -2718969955583513550, guid: 2a769c41168cfb74aba5932aefa0d06d, type: 3}
 --- !u!114 &3988301286660657315
 MonoBehaviour:
   m_ObjectHideFlags: 0

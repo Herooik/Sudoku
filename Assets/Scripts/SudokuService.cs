@@ -1,16 +1,18 @@
-﻿using System.Collections.Generic;
+﻿/*
+using System.Collections.Generic;
 using Board;
 
 public class SudokuService : ISudokuService
 {
-	private readonly SudokuBoard _sudokuBoard = new();
+	private SudokuBoard _sudokuBoard;
 
 	public IReadOnlyList<CellData> Initialize(SudokuType sudokuType)
 	{
 		DisplayGridConfig rules = SudokuGridRules.GetRules(sudokuType);
-		_sudokuBoard.InitializeCells(rules.Rows, rules.Columns);
+		GridSolver gridSolver = new GridSolver();
+		_sudokuBoard = new SudokuBoard(rules.Rows, rules.Columns, gridSolver);
 
-		GridSolver gridSolver = new(_sudokuBoard);
+		// GridSolver gridSolver = new(_sudokuBoard);
 		gridSolver.Solve(_sudokuBoard);
 
 		RemoveRandomCellsHandler.RemoveRandomCellsFromBoard(_sudokuBoard.Cells, 10);
@@ -200,3 +202,4 @@ public readonly struct CellData
 		UserPlacedValue = userPlacedValue;
 	}
 }
+*/

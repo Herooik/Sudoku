@@ -9,10 +9,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 349495669204386093}
-  - component: {fileID: 718203988699786541}
   - component: {fileID: 3757047436787576403}
+  - component: {fileID: 7938506015385696192}
   m_Layer: 5
-  m_Name: CellHolder
+  m_Name: SolvedByGeneratorCell
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -33,28 +33,12 @@ RectTransform:
   - {fileID: 5665687619668317673}
   - {fileID: 7216057684631918183}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 30, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &718203988699786541
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 554470504485229206}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 15e7da65c3cd46e46b68fb20fdc5cc96, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _valueText: {fileID: 1438461481800647433}
-  _button: {fileID: 3757047436787576403}
-  _image: {fileID: 2974571461713135686}
 --- !u!114 &3757047436787576403
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -99,6 +83,21 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &7938506015385696192
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 554470504485229206}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba0d44bfa69f44c0ab38fb85dcf31978, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _button: {fileID: 3757047436787576403}
+  _image: {fileID: 2974571461713135686}
+  _valueText: {fileID: 1438461481800647433}
 --- !u!1 &5128240181763655729
 GameObject:
   m_ObjectHideFlags: 0
@@ -130,7 +129,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 349495669204386093}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -206,7 +204,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 349495669204386093}
-  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}

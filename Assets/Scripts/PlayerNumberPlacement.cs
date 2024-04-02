@@ -5,7 +5,7 @@ public class PlayerNumberPlacement
 	public IEnumerable<int> AvailableNumbers => _availableNumbers;
 
 	private readonly List<int> _availableNumbers;
-	private List<int> _allNumbers;
+	private readonly List<int> _allNumbers;
 
 	public PlayerNumberPlacement(int boardMaxColumns)
 	{

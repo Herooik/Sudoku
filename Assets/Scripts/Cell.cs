@@ -1,43 +1,67 @@
-﻿public class Cell
+﻿public interface ICell
 {
-	public int ActualValue { get; private set; }
-	public bool IsPlacedByGenerator { get; private set; } = true;
+	public int Index { get; }
+	public int GroupBox { get; }
+	public int Row { get; }
+	public int Column { get; }
+}
 
-	public readonly int Index;
-	public readonly int GroupBox;
-	public readonly int Row;
-	public readonly int Column;
+public interface ICellNumber
+{
+	public int Number { get; }
+}
 
-	private int _expectedValue;
+public class EmptyCell : ICell
+{
+	public int Index { get; private set; }
+	public int GroupBox { get; private set; }
+	public int Row { get; private set; }
+	public int Column { get; private set; }
 
-	public Cell(int index, int row, int column, int groupBox, int value)
+	public EmptyCell(int index, int groupBox, int row, int column)
 	{
 		Index = index;
 		GroupBox = groupBox;
-		ActualValue = value;
 		Row = row;
 		Column = column;
 	}
+}
 
-	public bool IsEmpty()
+public class SolvedByGeneratorCell : ICell, ICellNumber
+{
+	public int Index { get; private set; }
+	public int GroupBox { get; private set; }
+	public int Row { get; private set; }
+	public int Column { get; private set; }
+	public int Number { get; private set; }
+
+	public SolvedByGeneratorCell(int index, int groupBox, int row, int column, int number)
 	{
-		return ActualValue <= 0;
+		Index = index;
+		GroupBox = groupBox;
+		Row = row;
+		Column = column;
+		Number = number;
 	}
+}
 
-	public void SetValue(int value)
-	{
-		ActualValue = value;
-	}
+public class CellForUser : ICell, ICellNumber
+{
+	public int Index { get; private set; }
+	public int GroupBox { get; private set; }
+	public int Row { get; private set; }
+	public int Column { get; private set; }
+	public int Number { get; private set; }
+	public bool IsPlacedGood => Number == ExpectedNumber;
+	public int ExpectedNumber { get; private set; }
 
-	public void RemoveValue()
+	public CellForUser(int index, int groupBox, int row, int column, int number, int expectedNumber)
 	{
-		IsPlacedByGenerator = false;
-		_expectedValue = ActualValue;
-		ActualValue = -1;
-	}
-
-	public bool IsPlacedGoodValue()
-	{
-		return ActualValue == _expectedValue;
+		Index = index;
+		GroupBox = groupBox;
+		Row = row;
+		Column = column;
+		Number = number;
+		ExpectedNumber = expectedNumber;
 	}
 }

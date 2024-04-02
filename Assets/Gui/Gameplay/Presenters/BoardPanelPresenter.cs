@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using Board;
+using Gui.Gameplay.Presenters.Cells;
 using UnityEngine;
 
 namespace Gui.Gameplay.Presenters
@@ -7,47 +9,111 @@ namespace Gui.Gameplay.Presenters
 	public class BoardPanelPresenter : MonoBehaviour
 	{
 		[SerializeField] private RectTransform _holder;
-		[SerializeField] private GameObject _cellObj;
+		[SerializeField] private EmptyCellPresenter _emptyCellPresenter;
+		[SerializeField] private SolvedByGeneratorCellPresenter _solvedByGeneratorCellPresenter;
+		[SerializeField] private CellFilledByUserInputPresenter _cellFilledByUserInputPresenter;
 
-		private readonly List<CellPresenter> _cellPresenters = new();
+		private ICellPresenter[,] _cellPresenters;
+		private SudokuBoard _sudokuBoard;
+		private Action<ICell> _onSelectCell;
 
-		public void Initialize(int columns, IEnumerable<CellData> cells, Action<int> onSelectCell)
+		public void Initialize(SudokuBoard sudokuBoard, Action<ICell> onSelectCell)
 		{
+			_sudokuBoard = sudokuBoard;
+			_onSelectCell = onSelectCell;
+
 			// todo instantiate groupboxes and then cells inside them
 			// we can control then groupbox to check if there is a a value etc.
 
-			float width = _holder.rect.width / columns;
+			float width = _holder.rect.width / sudokuBoard.GetColumnsLength();
 
-			_cellPresenters.Clear();
-			foreach (CellData cellDisplay in cells)
+			_cellPresenters = new ICellPresenter[sudokuBoard.GetRowsLength(), sudokuBoard.GetColumnsLength()];
+			foreach (ICell cell in sudokuBoard.CellsArray)
 			{
-				int row = cellDisplay.Row;
-				int column = cellDisplay.Column;
+				int row = cell.Row;
+				int column = cell.Column;
 
-				GameObject cellObj = Instantiate(_cellObj, _holder); // todo create a factory
-				cellObj.name = $"[{row}, {column}]";
+				ICellPresenter cellPresenter = SpawnCell(cell, _holder);
+				cellPresenter.OnSpawned(cell, () => _onSelectCell.Invoke(cell));
 
-				CellPresenter cellPresenter = cellObj.GetComponent<CellPresenter>();
+				cellPresenter.RectTransform.name = $"[{row}, {column}]";
 
-				cellPresenter.RectTransform.anchorMin = new Vector2(0.5f, 1);
-				cellPresenter.RectTransform.anchorMax = new Vector2(0.5f, 1);
-				cellPresenter.RectTransform.sizeDelta = Vector2.one * width;
+				SetupCellRect(cellPresenter, width, row, column);
 
-				float posX = column * width + (_holder.rect.x + width / 2);
-				float posY = -(row * width + width / 2);
-				cellPresenter.RectTransform.anchoredPosition = new Vector2(posX, posY);
-
-				cellPresenter.Setup(() => onSelectCell.Invoke(cellDisplay.Index)); // todo add IDisposable
-				_cellPresenters.Add(cellPresenter);
+				_cellPresenters[row, column] = cellPresenter;
 			}
 		}
 
-		public void Refresh(IReadOnlyList<CellData> allCells)
+		private void SetupCellRect(ICellPresenter cellPresenter, float width, int row, int column)
 		{
-			for (int i = 0; i < _cellPresenters.Count; i++)
+			cellPresenter.RectTransform.anchorMin = new Vector2(0.5f, 1);
+			cellPresenter.RectTransform.anchorMax = new Vector2(0.5f, 1);
+			cellPresenter.RectTransform.sizeDelta = Vector2.one * width;
+
+			float posX = column * width + (_holder.rect.x + width / 2);
+			float posY = -(row * width + width / 2);
+			cellPresenter.RectTransform.anchoredPosition = new Vector2(posX, posY);
+		}
+
+		private ICellPresenter SpawnCell(ICell cell, Transform container)
+		{
+			return cell switch
 			{
-				_cellPresenters[i].Refresh(allCells[i]);
+				EmptyCell => Instantiate(_emptyCellPresenter, container),
+				SolvedByGeneratorCell => Instantiate(_solvedByGeneratorCellPresenter, container),
+				CellForUser => Instantiate(_cellFilledByUserInputPresenter, container),
+				_ => null
+			};
+		}
+
+		public void PlaceNewNumber(ICell selectedCell)
+		{
+			ICellPresenter temp = _cellPresenters[selectedCell.Row, selectedCell.Column]; // todo change name
+			Destroy(temp.RectTransform.gameObject);
+
+			ICellPresenter cellPresenter = SpawnCell(selectedCell, _holder);
+			cellPresenter.OnSpawned(selectedCell, () => _onSelectCell.Invoke(selectedCell));
+
+			cellPresenter.RectTransform.name = $"[{selectedCell.Row}, {selectedCell.Column}]";
+
+			float width = _holder.rect.width / _sudokuBoard.GetColumnsLength();
+
+			SetupCellRect(cellPresenter, width, selectedCell.Row, selectedCell.Column);
+
+			_cellPresenters[selectedCell.Row, selectedCell.Column] = cellPresenter;
+		}
+
+		public void Refresh(ICell selectedCell)
+		{
+			foreach (ICellPresenter cellPresenter in _cellPresenters)
+			{
+				cellPresenter.Deselect();
 			}
+
+			for (int i = 0; i < _sudokuBoard.GetRowsLength(); i++)
+			{
+				_cellPresenters[i, selectedCell.Column].SelectSameColumn();
+			}
+			for (int i = 0; i < _sudokuBoard.GetColumnsLength(); i++)
+			{
+				_cellPresenters[selectedCell.Row, i].SelectSameColumn();
+			}
+
+			foreach (ICell cell in _sudokuBoard.GetCellsWithSameGroupBox(selectedCell.GroupBox))
+			{
+				_cellPresenters[cell.Row, cell.Column].SelectSameColumn();
+			}
+
+			if (selectedCell is ICellNumber cellNumber)
+			{
+				IEnumerable<ICell> cellsWithSameNumber = _sudokuBoard.GetCellsWithSameNumber(cellNumber.Number);
+				foreach (ICell cell in cellsWithSameNumber)
+				{
+					_cellPresenters[cell.Row, cell.Column].ShowSameNumber();
+				}
+			}
+
+			_cellPresenters[selectedCell.Row, selectedCell.Column].Select();
 		}
 	}
 }

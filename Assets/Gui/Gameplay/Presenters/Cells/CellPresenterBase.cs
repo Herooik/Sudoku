@@ -1,11 +1,10 @@
 using System;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Gui.Gameplay.Presenters
+namespace Gui.Gameplay.Presenters.Cells
 {
-	public class CellPresenter : MonoBehaviour
+	public class CellPresenterBase : MonoBehaviour, ICellPresenter
 	{
 		public RectTransform RectTransform
 		{
@@ -17,20 +16,49 @@ namespace Gui.Gameplay.Presenters
 			}
 		}
 
-		[SerializeField] private TextMeshProUGUI _valueText;
 		[SerializeField] private Button _button;
-		[SerializeField] private Image _image;
+		[SerializeField] protected Image _image;
 
 		private RectTransform _rectTransform;
 
-		public void Setup(Action onClick)
+		public virtual void OnSpawned(ICell cell, Action onSelectCell)
 		{
 			_button.onClick.AddListener(() =>
 			{
-				onClick?.Invoke();
+				onSelectCell?.Invoke();
 			});
 		}
 
+		public void Deselect()
+		{
+			_image.color = Color.white;
+		}
+
+		public void Select()
+		{
+			_image.color = Color.cyan;
+		}
+
+		public void SelectSameColumn()
+		{
+			_image.color = Color.yellow;
+		}
+
+		public virtual void ShowSameNumber() { }
+
+		// [SerializeField] private TextMeshProUGUI _valueText;
+
+		//
+		// public void Setup(int value, Action onClick)
+		// {
+		// 	_button.onClick.AddListener(() =>
+		// 	{
+		// 		onClick?.Invoke();
+		// 	});
+		// 	_valueText.SetText(value.ToString());
+		// }
+
+		/*
 		public void Refresh(CellData cellData)
 		{
 			_valueText.SetText(cellData.Value);
@@ -74,5 +102,16 @@ namespace Gui.Gameplay.Presenters
 					throw new ArgumentOutOfRangeException();
 			}
 		}
+	*/
+	}
+
+	public interface ICellPresenter
+	{
+		RectTransform RectTransform { get; }
+		void OnSpawned(ICell cell, Action onSelectCell);
+		void Deselect();
+		void Select();
+		void SelectSameColumn();
+		void ShowSameNumber();
 	}
 }

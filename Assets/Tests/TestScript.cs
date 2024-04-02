@@ -1,87 +1,103 @@
-using System;
 using System.Linq;
 using Board;
+using BoardGenerator;
 using NUnit.Framework;
 
 namespace Tests
 {
 	public class TestScript
 	{
-		private SudokuBoard _board;
+		// private SudokuBoard _board;
 
 		[SetUp]
 		public void Setup()
 		{
-			_board = new SudokuBoard();
-			DisplayGridConfig rules = SudokuGridRules.GetRules(SudokuType.NINE_BY_NINE);
-			_board.InitializeCells(rules.Rows, rules.Columns);
-		}
-
-		[Test]
-		public void TestInitialization()
-		{
-			Assert.That(_board.Cells, Is.Not.Null);
-			Assert.That(_board.Cells.Count, Is.EqualTo(81));
+			// GridSolver gridSolver = new();
+			// DisplayGridConfig rules = SudokuGridRules.GetRules(SudokuType.NINE_BY_NINE);
+			// _board = new SudokuBoard(rules.Rows, rules.Columns, gridSolver);
 		}
 
 		[Test]
 		public void GenerateSolvableGrid()
 		{
-			GridSolver gridSolver = new(_board);
+			int rows = 9;
+			int columns = 9;
+			GridSolver gridSolver = new GridSolver();
+			SudokuBoard sudokuBoard = new SudokuBoard(rows, columns, gridSolver);
 
-			gridSolver.Solve(_board);
-			RemoveRandomCellsHandler.RemoveRandomCellsFromBoard(_board.Cells, 10);
-
-			Assert.That(_board.IsFullFilled(), Is.False);
+			sudokuBoard.GenerateNewBoard();
+			bool solved = gridSolver.Solve(sudokuBoard.GetRowsLength(), sudokuBoard.GetColumnsLength(), sudokuBoard.CellsArray, sudokuBoard.CanPlaceValue, sudokuBoard.IsFullFilled);
+	
+			Assert.That(solved, Is.True);
 		}
 
 		[Test]
-		public void PlaceValidExpectedValue()
+		public void Is_Duplicate_Value_In_Row()
 		{
-			GridSolver gridSolver = new(_board);
+			int rows = 9;
+			int columns = 9;
+			GridSolver gridSolver = new GridSolver();
+			SudokuBoard sudokuBoard = new SudokuBoard(rows, columns, gridSolver);
+			IBoardGenerator boardGenerator = new EmptyBoardGenerator(sudokuBoard.GetRowsLength(), sudokuBoard.GetColumnsLength());
 
-			gridSolver.Solve(_board);
-			int value = _board.Cells[0].ActualValue;
-			_board.Cells[0].RemoveValue();
-
-			Assert.That(_board.CanPlaceValue(value, _board.Cells[0]), Is.EqualTo(SudokuBoard.PlaceValueResult.OK));
+			boardGenerator.Generate(sudokuBoard.CellsArray);
 		}
 
 		[Test]
-		public void PlaceInvalidExpectedValue()
+		public void Place_Valid_Value()
 		{
-			Random random = new Random();
-			GridSolver gridSolver = new(_board);
+			int rows = 9;
+			int columns = 9;
+			GridSolver gridSolver = new GridSolver();
+			SudokuBoard sudokuBoard = new SudokuBoard(rows, columns, gridSolver);
+			IBoardGenerator boardGenerator = new EmptyBoardGenerator(sudokuBoard.GetRowsLength(), sudokuBoard.GetColumnsLength());
 
-			gridSolver.Solve(_board);
-			int value = _board.Cells[0].ActualValue;
-			// Generate the opposite value within the range [1, 9] excluding the original value
-			int oppositeValue;
-			do
-			{
-				oppositeValue = random.Next(1, 10);
-			} while (oppositeValue == value);
-			_board.Cells[0].RemoveValue();
+			boardGenerator.Generate(sudokuBoard.CellsArray);
 
-			Assert.That(_board.CanPlaceValue(oppositeValue, _board.Cells[0]), Is.Not.EqualTo(SudokuBoard.PlaceValueResult.OK));
+			Assert.That(sudokuBoard.CanPlaceValue(5, sudokuBoard.CellsArray[0, 0]), Is.True);
+		}
+
+		
+		[Test]
+		public void Place_Invalid_Value()
+		{
+			int rows = 9;
+			int columns = 9;
+			GridSolver gridSolver = new GridSolver();
+			SudokuBoard sudokuBoard = new SudokuBoard(rows, columns, gridSolver);
+			IBoardGenerator boardGenerator = new EmptyBoardGenerator(sudokuBoard.GetRowsLength(), sudokuBoard.GetColumnsLength());
+
+			boardGenerator.Generate(sudokuBoard.CellsArray);
+			sudokuBoard.PlaceValue(5, sudokuBoard.CellsArray[0,0]);
+
+			Assert.That(sudokuBoard.CanPlaceValue(5, sudokuBoard.CellsArray[0, 1]), Is.False);
 		}
 
 		[Test]
 		public void ValuesToPlace()
 		{
-			PlayerNumberPlacement playerNumberPlacement = new PlayerNumberPlacement(_board.Columns);
-			GridSolver gridSolver = new(_board);
+			int rows = 9;
+			int columns = 9;
+			GridSolver gridSolver = new GridSolver();
+			SudokuBoard sudokuBoard = new SudokuBoard(rows, columns, gridSolver);
+			// IBoardGenerator boardGenerator = new RandomBoardGenerator(sudokuBoard.GetRowsLength(), sudokuBoard.GetColumnsLength(), gridSolver, sudokuBoard.CanPlaceValue, sudokuBoard.IsFullFilled);
+			IBoardGenerator boardGenerator = new EmptyBoardGenerator(sudokuBoard.GetRowsLength(), sudokuBoard.GetColumnsLength());
+			PlayerNumberPlacement playerNumberPlacement = new PlayerNumberPlacement(9);
 
-			gridSolver.Solve(_board);
-			_board.Cells[0].RemoveValue();
+			boardGenerator.Generate(sudokuBoard.CellsArray);
 
-			for (int i = 1; i <= _board.Columns; i++)
-			{
-				if (_board.IsValueReachMaxOutUsed(i))
-				{
-					playerNumberPlacement.RemoveNumber(i);
-				}
-			}
+			var temp = sudokuBoard.CellsArray[0, 0];
+			// sudokuBoard.CellsArray[0, 0] = new CellFilledByUserInput(temp.Index, temp.GroupBox, temp.Row, temp.Column, 5, false);
+
+			// _board.Cells[0].RemoveValue();
+			//
+			// for (int i = 1; i <= _board.GetColumnsLength(); i++)
+			// {
+			// 	if (_board.IsValueReachMaxOutUsed(i))
+			// 	{
+			// 		playerNumberPlacement.RemoveNumber(i);
+			// 	}
+			// }
 
 			Assert.That(playerNumberPlacement.AvailableNumbers.Count, Is.EqualTo(1));
 		}

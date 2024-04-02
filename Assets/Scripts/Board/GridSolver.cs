@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using NumberGenerator;
 
@@ -5,48 +6,52 @@ namespace Board
 {
 	public class GridSolver
 	{
-		private readonly SudokuBoard _sudokuBoard;
 		private readonly IEnumerable<int> _numberList;
 
-		public GridSolver(SudokuBoard sudokuBoard)
+		public GridSolver()
 		{
-			_sudokuBoard = sudokuBoard;
-
 			RandomNumberListGenerator numberListGenerator = new RandomNumberListGenerator();
 			_numberList = numberListGenerator.GenerateNumbers(9);
 		}
 
-		public bool Solve(SudokuBoard sudokuBoard)
+		public bool Solve(int rows, int columns, ICell[,] cells, Func<int, ICell, bool> canPlaceValue, Func<bool> isBoardFullFilled)
 		{
-			foreach (Cell cell in sudokuBoard.Cells)
+			for (int row = 0; row < rows; row++)
 			{
-				if (!cell.IsEmpty())
-					continue;
-
-				foreach (int number in _numberList)
+				for (int column = 0; column < columns; column++)
 				{
-					if (_sudokuBoard.CanPlaceValue(number, cell) == SudokuBoard.PlaceValueResult.OK)
+					ICell cell = cells[row, column];
+					if (cell is EmptyCell)
 					{
-						cell.SetValue(number);
-
-						if (_sudokuBoard.IsFullFilled())
+						foreach (int number in _numberList)
 						{
-							return true;
+							if (canPlaceValue.Invoke(number, cell))
+							{
+								int groupBox = (row / 3) + 3 * (column / 3) + 1;
+
+								cells[row, column] = new SolvedByGeneratorCell(row * rows + column, groupBox, row, column, number);
+
+								if (isBoardFullFilled.Invoke())
+								{
+									return true;
+								}
+
+								if (Solve(rows, columns, cells, canPlaceValue, isBoardFullFilled))
+								{
+									return true;
+								}
+
+								cells[row, column] = new EmptyCell(row * rows + column, groupBox, row, column);
+							}
 						}
 
-						if (Solve(sudokuBoard))
-						{
-							return true;
-						}
-
-						cell.SetValue(-1);
+						return false;
 					}
 				}
-
-				return false;
 			}
 
 			return true;
 		}
+
 	}
 }

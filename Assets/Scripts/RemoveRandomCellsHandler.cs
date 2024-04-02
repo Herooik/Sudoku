@@ -1,25 +1,27 @@
 ﻿using System;
-using System.Collections.Generic;
-using Board;
 using UnityEngine.Assertions;
 
 public static class RemoveRandomCellsHandler
 { 
-	public static void RemoveRandomCellsFromBoard(IReadOnlyList<Cell> sudokuBoardCells, int cellsToRemove)
+	public static void RemoveRandomCellsFromBoard(ICell[,] sudokuBoardCells, int cellsToRemove)
 	{
 		Assert.AreNotEqual(cellsToRemove, 0);
 
 		Random random = new();
+		int rows = sudokuBoardCells.GetLength(0);
 
 		for (int i = 0; i < cellsToRemove; i++)
 		{
-			int index = 0;
-			while (sudokuBoardCells[index].IsEmpty())
+			int row = random.Next(0, rows);
+			int column = random.Next(0, rows);
+			while (sudokuBoardCells[row, column] is EmptyCell)
 			{
-				index = random.Next(0, sudokuBoardCells.Count - 1);
+				row = random.Next(0, rows);
+				column = random.Next(0, rows);
 			}
 
-			sudokuBoardCells[index].RemoveValue();
+			ICell temp = sudokuBoardCells[row, column];
+			sudokuBoardCells[row, column] = new EmptyCell(temp.Index, temp.GroupBox, temp.Row, temp.Column);
 		}
 	}
 }

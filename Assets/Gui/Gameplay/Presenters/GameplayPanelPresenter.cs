@@ -17,17 +17,19 @@ namespace Gui.Gameplay.Presenters
 
 			_model.Setup += OnSetup;
 			_model.Refresh += OnRefresh;
+			_model.PlaceNewNumber += OnPlaceNewNumber;
 		}
 
 		private void OnDisable()
 		{
 			_model.Setup -= OnSetup;
 			_model.Refresh -= OnRefresh;
+			_model.PlaceNewNumber -= OnPlaceNewNumber;
 		}
 
 		private void OnSetup()
 		{
-			_boardPanelPresenter.Initialize(9, _model._cellDisplays, _model.SelectCell);
+			_boardPanelPresenter.Initialize(_model.SudokuBoard, _model.SelectCell);
 			_playerNumberPlacementPresenter.Initialize(_model.Numbers, _model.PlaceNumber);
 
 			OnRefresh();
@@ -35,8 +37,15 @@ namespace Gui.Gameplay.Presenters
 
 		private void OnRefresh()
 		{
-			_boardPanelPresenter.Refresh(_model._cellDisplays);
+			_boardPanelPresenter.Refresh(_model.SelectedCell);
 			_playerNumberPlacementPresenter.Refresh();
+		}
+
+		private void OnPlaceNewNumber()
+		{
+			_boardPanelPresenter.PlaceNewNumber(_model.SelectedCell);
+
+			OnRefresh();
 		}
 	}
 }
