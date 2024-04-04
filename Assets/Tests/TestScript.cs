@@ -25,7 +25,7 @@ namespace Tests
 			GridSolver gridSolver = new GridSolver();
 			SudokuBoard sudokuBoard = new SudokuBoard(rows, columns, gridSolver);
 
-			sudokuBoard.GenerateNewBoard();
+			sudokuBoard.GenerateNewBoard(10);
 			bool solved = gridSolver.Solve(sudokuBoard.GetRowsLength(), sudokuBoard.GetColumnsLength(), sudokuBoard.CellsArray, sudokuBoard.CanPlaceValue, sudokuBoard.IsFullFilled);
 	
 			Assert.That(solved, Is.True);

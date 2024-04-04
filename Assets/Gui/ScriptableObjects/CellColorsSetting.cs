@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Gui.Gameplay.Presenters
+namespace Gui.ScriptableObjects
 {
 	[CreateAssetMenu(fileName = nameof(CellColorsSetting), menuName = "Game/" + nameof(CellColorsSetting))]
 	public class CellColorsSetting : ScriptableObject

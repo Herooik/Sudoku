@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Board;
 using Gui.Gameplay.Presenters.Cells;
+using Gui.ScriptableObjects;
 using UnityEngine;
 
 namespace Gui.Gameplay.Presenters

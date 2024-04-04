@@ -2,6 +2,7 @@ using Gui.Gameplay.Models;
 using Gui.Gameplay.Presenters;
 using Gui.Menu.Models;
 using Gui.Menu.Presenters;
+using Gui.ScriptableObjects;
 using UnityEngine;
 
 namespace Root
@@ -14,15 +15,17 @@ namespace Root
 		[SerializeField] private GameplayPanelPresenter _gameplayPanelPresenter;
 		[SerializeField] private MainMenuPanelPresenter _mainMenuPanelPresenter;
 
+		[SerializeField] private DifficultyRulesSettings _difficultyRulesSettings;
+
 		private void Start()
 		{
 			OpenMainMenu();
 		}
 
-		public void OpenGameplay()
+		public void OpenGameplay(SudokuDifficulty selectedDifficulty)
 		{
 			//todo make it generic using MVP pattern
-			GameplayPanelModel model = new GameplayPanelModel();
+			GameplayPanelModel model = new GameplayPanelModel(_difficultyRulesSettings, SudokuType.NINE_BY_NINE, selectedDifficulty);
 			GameObject presenter = Instantiate(_gameplayPanelPresenter, _panelHolder).gameObject;
 			presenter.GetComponent<GameplayPanelPresenter>().Bind(model);
 		}
@@ -30,7 +33,7 @@ namespace Root
 		public void OpenMainMenu()
 		{
 			//todo make it generic using MVP pattern
-			MainMenuPanelModel model = new MainMenuPanelModel();
+			MainMenuPanelModel model = new MainMenuPanelModel(this);
 			GameObject presenter = Instantiate(_mainMenuPanelPresenter, _panelHolder).gameObject;
 			presenter.GetComponent<MainMenuPanelPresenter>().Bind(model);
 		}

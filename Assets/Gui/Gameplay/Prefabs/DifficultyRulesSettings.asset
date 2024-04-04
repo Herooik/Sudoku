@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca6402bae5bb42378947c5911f465c29, type: 3}
+  m_Name: DifficultyRulesSettings
+  m_EditorClassIdentifier: 
+  _difficultySettings:
+  - SudokuType: 3
+    DifficultySettings:
+    - SudokuDifficulty: 0
+      CellsToRemove: 20
+    - SudokuDifficulty: 1
+      CellsToRemove: 35
+    - SudokuDifficulty: 2
+      CellsToRemove: 50
+    - SudokuDifficulty: 3
+      CellsToRemove: 65
+    - SudokuDifficulty: 4
+      CellsToRemove: 80

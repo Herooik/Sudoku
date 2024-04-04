@@ -1,7 +1,7 @@
 using Gui.Gameplay.Presenters.Cells;
 using UnityEngine;
 
-namespace Gui.Gameplay.Presenters
+namespace Gui.ScriptableObjects
 {
 	[CreateAssetMenu(fileName = nameof(SudokuCellsSpawner), menuName = "Game/" + nameof(SudokuCellsSpawner))]
 	public class SudokuCellsSpawner : ScriptableObject

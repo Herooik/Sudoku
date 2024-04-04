@@ -21,12 +21,12 @@ namespace Board
 			CellsArray = new ICell[rows, columns];
 		}
 
-		public void GenerateNewBoard()
+		public void GenerateNewBoard(int cellsToRemove)
 		{
 			IBoardGenerator boardGenerator = new RandomBoardGenerator(_rows, _columns, _gridSolver, CanPlaceValue, IsFullFilled);
 			boardGenerator.Generate(CellsArray);
 
-			RemoveRandomCellsHandler.RemoveRandomCellsFromBoard(CellsArray, 5, SetCellAsEmpty);
+			RemoveRandomCellsHandler.RemoveRandomCellsFromBoard(CellsArray, cellsToRemove, SetCellAsEmpty);
 		}
 
 		public bool IsFullFilled()

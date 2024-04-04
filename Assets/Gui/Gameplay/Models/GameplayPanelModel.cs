@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Board;
+using Gui.ScriptableObjects;
 
 namespace Gui.Gameplay.Models
 {
@@ -17,12 +18,15 @@ namespace Gui.Gameplay.Models
 
 		private readonly InputNumbers _inputNumbers;
 
-		public GameplayPanelModel(SudokuType sudokuType = SudokuType.NINE_BY_NINE)
+		public GameplayPanelModel(
+			DifficultyRulesSettings difficultyRulesSettings,
+			SudokuType sudokuType,
+			SudokuDifficulty selectedDifficulty)
 		{
 			DisplayGridConfig rules = SudokuGridRules.GetRules(sudokuType);
 			GridSolver gridSolver = new GridSolver();
 			SudokuBoard = new SudokuBoard(rules.Rows, rules.Columns, gridSolver);
-			SudokuBoard.GenerateNewBoard();
+			SudokuBoard.GenerateNewBoard(difficultyRulesSettings.GetCellsToRemove(sudokuType, selectedDifficulty));
 
 			Random random = new();
 			int row = random.Next(0, SudokuBoard.GetRowsLength());
