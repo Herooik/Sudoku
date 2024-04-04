@@ -669,9 +669,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _holder: {fileID: 4398707268394113766}
-  _emptyCellPresenter: {fileID: 118004627371537000, guid: d11994b7de20905469831badf96cf6c7, type: 3}
-  _solvedByGeneratorCellPresenter: {fileID: 7938506015385696192, guid: 544dbedf414dea747bcbf6a199f1bbc8, type: 3}
-  _cellFilledByUserInputPresenter: {fileID: -2718969955583513550, guid: 2a769c41168cfb74aba5932aefa0d06d, type: 3}
+  _sudokuCellsSpawner: {fileID: 11400000, guid: 1ac4c8d75c19eb144b0c9da8911b50bd, type: 2}
 --- !u!114 &3988301286660657315
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1198,10 +1196,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7110896249379359634}
-  - component: {fileID: 6287145650186336796}
   - component: {fileID: 8474078230108700577}
   m_Layer: 5
-  m_Name: PlacementInputNumbers
+  m_Name: PlayerNumberPlacement
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1224,34 +1221,8 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: -1600}
-  m_SizeDelta: {x: 0, y: 200}
+  m_SizeDelta: {x: -100, y: 200}
   m_Pivot: {x: 0.5, y: 1}
---- !u!114 &6287145650186336796
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7940268188009907971}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 30649d3a9faa99c48a7b1166b86bf2a0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Padding:
-    m_Left: 0
-    m_Right: 0
-    m_Top: 0
-    m_Bottom: 0
-  m_ChildAlignment: 4
-  m_Spacing: 50
-  m_ChildForceExpandWidth: 1
-  m_ChildForceExpandHeight: 1
-  m_ChildControlWidth: 1
-  m_ChildControlHeight: 1
-  m_ChildScaleWidth: 0
-  m_ChildScaleHeight: 0
-  m_ReverseArrangement: 0
 --- !u!114 &8474078230108700577
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1264,4 +1235,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29f6bf89a81d11a4ea80897cdfeb2e5b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _numberToPlacePrefab: {fileID: 5451089119337492241, guid: 110dad3bb31a81a429c355b2c3a76334, type: 3}
+  _placementInputNumber: {fileID: 5708256498556482324, guid: 110dad3bb31a81a429c355b2c3a76334, type: 3}

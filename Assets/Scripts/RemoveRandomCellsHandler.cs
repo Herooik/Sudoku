@@ -3,7 +3,7 @@ using UnityEngine.Assertions;
 
 public static class RemoveRandomCellsHandler
 { 
-	public static void RemoveRandomCellsFromBoard(ICell[,] sudokuBoardCells, int cellsToRemove)
+	public static void RemoveRandomCellsFromBoard(ICell[,] sudokuBoardCells, int cellsToRemove, Action<ICell> setCellAsEmpty)
 	{
 		Assert.AreNotEqual(cellsToRemove, 0);
 
@@ -14,14 +14,13 @@ public static class RemoveRandomCellsHandler
 		{
 			int row = random.Next(0, rows);
 			int column = random.Next(0, rows);
-			while (sudokuBoardCells[row, column] is EmptyCell)
+			while (sudokuBoardCells[row, column].IsEmpty)
 			{
 				row = random.Next(0, rows);
 				column = random.Next(0, rows);
 			}
 
-			ICell temp = sudokuBoardCells[row, column];
-			sudokuBoardCells[row, column] = new EmptyCell(temp.Index, temp.GroupBox, temp.Row, temp.Column);
+			setCellAsEmpty?.Invoke(sudokuBoardCells[row, column]);
 		}
 	}
 }

@@ -9,9 +9,7 @@ namespace Gui.Gameplay.Presenters
 	public class BoardPanelPresenter : MonoBehaviour
 	{
 		[SerializeField] private RectTransform _holder;
-		[SerializeField] private EmptyCellPresenter _emptyCellPresenter;
-		[SerializeField] private SolvedByGeneratorCellPresenter _solvedByGeneratorCellPresenter;
-		[SerializeField] private CellFilledByUserInputPresenter _cellFilledByUserInputPresenter;
+		[SerializeField] private SudokuCellsSpawner _sudokuCellsSpawner;
 
 		private ICellPresenter[,] _cellPresenters;
 		private SudokuBoard _sudokuBoard;
@@ -33,54 +31,26 @@ namespace Gui.Gameplay.Presenters
 				int row = cell.Row;
 				int column = cell.Column;
 
-				ICellPresenter cellPresenter = SpawnCell(cell, _holder);
+				ICellPresenter cellPresenter = _sudokuCellsSpawner.SpawnCell(cell, _holder);
 				cellPresenter.OnSpawned(cell, () => _onSelectCell.Invoke(cell));
 
 				cellPresenter.RectTransform.name = $"[{row}, {column}]";
 
-				SetupCellRect(cellPresenter, width, row, column);
+				SetupCellRect(cellPresenter.RectTransform, width, row, column);
 
 				_cellPresenters[row, column] = cellPresenter;
 			}
 		}
 
-		private void SetupCellRect(ICellPresenter cellPresenter, float width, int row, int column)
+		private void SetupCellRect(RectTransform cellPresenterRt, float width, int row, int column)
 		{
-			cellPresenter.RectTransform.anchorMin = new Vector2(0.5f, 1);
-			cellPresenter.RectTransform.anchorMax = new Vector2(0.5f, 1);
-			cellPresenter.RectTransform.sizeDelta = Vector2.one * width;
+			cellPresenterRt.anchorMin = new Vector2(0.5f, 1);
+			cellPresenterRt.anchorMax = new Vector2(0.5f, 1);
+			cellPresenterRt.sizeDelta = Vector2.one * width;
 
 			float posX = column * width + (_holder.rect.x + width / 2);
 			float posY = -(row * width + width / 2);
-			cellPresenter.RectTransform.anchoredPosition = new Vector2(posX, posY);
-		}
-
-		private ICellPresenter SpawnCell(ICell cell, Transform container)
-		{
-			return cell switch
-			{
-				EmptyCell => Instantiate(_emptyCellPresenter, container),
-				SolvedByGeneratorCell => Instantiate(_solvedByGeneratorCellPresenter, container),
-				CellForUser => Instantiate(_cellFilledByUserInputPresenter, container),
-				_ => null
-			};
-		}
-
-		public void PlaceNewNumber(ICell selectedCell)
-		{
-			ICellPresenter temp = _cellPresenters[selectedCell.Row, selectedCell.Column]; // todo change name
-			Destroy(temp.RectTransform.gameObject);
-
-			ICellPresenter cellPresenter = SpawnCell(selectedCell, _holder);
-			cellPresenter.OnSpawned(selectedCell, () => _onSelectCell.Invoke(selectedCell));
-
-			cellPresenter.RectTransform.name = $"[{selectedCell.Row}, {selectedCell.Column}]";
-
-			float width = _holder.rect.width / _sudokuBoard.GetColumnsLength();
-
-			SetupCellRect(cellPresenter, width, selectedCell.Row, selectedCell.Column);
-
-			_cellPresenters[selectedCell.Row, selectedCell.Column] = cellPresenter;
+			cellPresenterRt.anchoredPosition = new Vector2(posX, posY);
 		}
 
 		public void Refresh(ICell selectedCell)
@@ -90,27 +60,24 @@ namespace Gui.Gameplay.Presenters
 				cellPresenter.Deselect();
 			}
 
+			IEnumerable<ICell> cellsWithSameNumber = _sudokuBoard.GetFilledCellsWithSameNumber(selectedCell.Number);
+			foreach (ICell cell in cellsWithSameNumber)
+			{
+				_cellPresenters[cell.Row, cell.Column].ShowSameNumber();
+			}
+
 			for (int i = 0; i < _sudokuBoard.GetRowsLength(); i++)
 			{
-				_cellPresenters[i, selectedCell.Column].SelectSameColumn();
+				_cellPresenters[i, selectedCell.Column].SelectSameColumn(selectedCell.Number);
 			}
 			for (int i = 0; i < _sudokuBoard.GetColumnsLength(); i++)
 			{
-				_cellPresenters[selectedCell.Row, i].SelectSameColumn();
+				_cellPresenters[selectedCell.Row, i].SelectSameColumn(selectedCell.Number);
 			}
 
 			foreach (ICell cell in _sudokuBoard.GetCellsWithSameGroupBox(selectedCell.GroupBox))
 			{
-				_cellPresenters[cell.Row, cell.Column].SelectSameColumn();
-			}
-
-			if (selectedCell is ICellNumber cellNumber)
-			{
-				IEnumerable<ICell> cellsWithSameNumber = _sudokuBoard.GetCellsWithSameNumber(cellNumber.Number);
-				foreach (ICell cell in cellsWithSameNumber)
-				{
-					_cellPresenters[cell.Row, cell.Column].ShowSameNumber();
-				}
+				_cellPresenters[cell.Row, cell.Column].SelectSameColumn(selectedCell.Number);
 			}
 
 			_cellPresenters[selectedCell.Row, selectedCell.Column].Select();

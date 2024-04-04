@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using BoardGenerator;
+using UnityEngine;
 
 namespace Board
 {
@@ -25,20 +26,15 @@ namespace Board
 			IBoardGenerator boardGenerator = new RandomBoardGenerator(_rows, _columns, _gridSolver, CanPlaceValue, IsFullFilled);
 			boardGenerator.Generate(CellsArray);
 
-			RemoveRandomCellsHandler.RemoveRandomCellsFromBoard(CellsArray, 20);
+			RemoveRandomCellsHandler.RemoveRandomCellsFromBoard(CellsArray, 5, SetCellAsEmpty);
 		}
 
 		public bool IsFullFilled()
 		{
 			foreach (ICell cell in CellsArray)
 			{
-				if (cell is ICellNumber cellNumber)
-				{
-					if (cellNumber.Number <= 0 )
-						return false;
-				}
-				// if (cell is EmptyCell)
-					// return false;
+				if (cell.IsEmpty)
+					return false;
 			}
 			return true;
 		}
@@ -58,35 +54,31 @@ namespace Board
 			int count = 0;
 			foreach (ICell cell in CellsArray)
 			{
-				if (cell is ICellNumber iCellNumber)
+				if (cell.IsFilledGood && cell.Number == value)
 				{
-					if (iCellNumber.Number == value)
-						count++;
+					count++;
 				}
 			}
-			// int count = _cells.Count(cell => cell.ActualValue == value);
 			return count == GetColumnsLength();
 		}
 
 		public void PlaceValue(int value, ICell targetCell)
 		{
-			// bool isPlacedGood = CanPlaceValue(value, targetCell);
-
-			// CellsArray[targetCell.Row, targetCell.Column] = new CellFilledByUserInput(targetCell.Index,
-			// 	targetCell.GroupBox,
-			// 	targetCell.Row,
-			// 	targetCell.Column,
-			// 	value,
-			// 	isPlacedGood);
-		}
-
-		public enum PlaceValueResult
-		{
-			OK,
-			FILLED_BY_SOLVER,
-			DUPLICATE_IN_SUB_BOX,
-			DUPLICATE_IN_ROW,
-			DUPLICATE_IN_COLUMN,
+			if (targetCell is CellForUser cellForUser)
+			{
+				if (cellForUser.Number == value)
+				{
+					cellForUser.SetEmpty();
+				}
+				else
+				{
+					cellForUser.FillCell(value);
+				}
+			}
+			else
+			{
+				Debug.LogWarning("CAN'T PLACE NUMBER ON GENERATED CELL");
+			}
 		}
 
 		public bool CanPlaceValue(int valueToPlace, ICell cellToPlace)
@@ -96,25 +88,22 @@ namespace Board
 			HashSet<(int, int, int)> subGrids = new();
 			foreach (ICell cell in CellsArray)
 			{
-				if (cell is ICellNumber cellNumber)
+				if (cell.IsEmpty) continue;
+				if (cell.Row == cellToPlace.Row && cell.Column == cellToPlace.Column) continue;
+
+				if (!rows.Add((cell.Row, cell.Number)))
 				{
-					// Skip the cell we're checking
-					if (cell.Row == cellToPlace.Row && cell.Column == cellToPlace.Column) continue;
+					return false;
+				}
 
-					if (!rows.Add((cell.Row, cellNumber.Number)))
-					{
-						return false;
-					}
+				if (!columns.Add((cell.Column, cell.Number)))
+				{
+					return false;
+				}
 
-					if (!columns.Add((cell.Column, cellNumber.Number)))
-					{
-						return false;
-					}
-
-					if (!subGrids.Add((cell.Row / 3, cell.Column / 3, cellNumber.Number)))
-					{
-						return false;
-					}
+				if (!subGrids.Add((cell.Row / 3, cell.Column / 3, cell.Number)))
+				{
+					return false;
 				}
 			}
 
@@ -136,16 +125,13 @@ namespace Board
 			return true;
 		}
 
-		public IEnumerable<ICell> GetCellsWithSameNumber(int number)
+		public IEnumerable<ICell> GetFilledCellsWithSameNumber(int number)
 		{
 			List<ICell> cells = new();
 			foreach (ICell cell in CellsArray)
 			{
-				if (cell is ICellNumber cellNumber)
-				{
-					if (cellNumber.Number == number)
+				if (!cell.IsEmpty && cell.Number == number)
 						cells.Add(cell);
-				}
 			}
 			return cells;
 		}
@@ -159,6 +145,12 @@ namespace Board
 					cells.Add(cell);
 			}
 			return cells;
+		}
+
+		public void SetCellAsEmpty(ICell cell)
+		{
+			ICell temp = CellsArray[cell.Row, cell.Column];
+			CellsArray[cell.Row, cell.Column] = new CellForUser(temp.Index, temp.GroupBox, temp.Row, temp.Column, 0, temp.Number);
 		}
 	}
 }

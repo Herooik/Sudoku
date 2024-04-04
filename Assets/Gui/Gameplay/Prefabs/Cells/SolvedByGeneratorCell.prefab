@@ -98,6 +98,7 @@ MonoBehaviour:
   _button: {fileID: 3757047436787576403}
   _image: {fileID: 2974571461713135686}
   _valueText: {fileID: 1438461481800647433}
+  _cellColorsSetting: {fileID: 11400000, guid: 635989ed86893df448ce96c01ee7d2e4, type: 2}
 --- !u!1 &5128240181763655729
 GameObject:
   m_ObjectHideFlags: 0

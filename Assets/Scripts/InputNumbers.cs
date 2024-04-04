@@ -1,13 +1,14 @@
 using System.Collections.Generic;
 
-public class PlayerNumberPlacement
+public class InputNumbers
 {
+	public IReadOnlyList<int> AllNumbers => _allNumbers;
 	public IEnumerable<int> AvailableNumbers => _availableNumbers;
 
 	private readonly List<int> _availableNumbers;
 	private readonly List<int> _allNumbers;
 
-	public PlayerNumberPlacement(int boardMaxColumns)
+	public InputNumbers(int boardMaxColumns)
 	{
 		List<int> allNumbers = new();
 		for (int i = 1; i <= boardMaxColumns; i++)

@@ -1,4 +1,5 @@
 using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -18,11 +19,16 @@ namespace Gui.Gameplay.Presenters.Cells
 
 		[SerializeField] private Button _button;
 		[SerializeField] protected Image _image;
+		[SerializeField] protected TextMeshProUGUI _valueText;
+		[SerializeField] protected CellColorsSetting _cellColorsSetting;
+
+		private protected ICell Cell;
 
 		private RectTransform _rectTransform;
 
 		public virtual void OnSpawned(ICell cell, Action onSelectCell)
 		{
+			Cell = cell;
 			_button.onClick.AddListener(() =>
 			{
 				onSelectCell?.Invoke();
@@ -31,78 +37,30 @@ namespace Gui.Gameplay.Presenters.Cells
 
 		public void Deselect()
 		{
-			_image.color = Color.white;
+			_image.color = _cellColorsSetting._default;
 		}
 
-		public void Select()
+		public virtual void Select()
 		{
-			_image.color = Color.cyan;
+			_image.color = _cellColorsSetting._selected;
 		}
 
-		public void SelectSameColumn()
+		public void SelectSameColumn(int selectedCellNumber)
 		{
-			_image.color = Color.yellow;
-		}
-
-		public virtual void ShowSameNumber() { }
-
-		// [SerializeField] private TextMeshProUGUI _valueText;
-
-		//
-		// public void Setup(int value, Action onClick)
-		// {
-		// 	_button.onClick.AddListener(() =>
-		// 	{
-		// 		onClick?.Invoke();
-		// 	});
-		// 	_valueText.SetText(value.ToString());
-		// }
-
-		/*
-		public void Refresh(CellData cellData)
-		{
-			_valueText.SetText(cellData.Value);
-
-			switch (cellData.UserPlacedValue)
+			if (Cell.Number == selectedCellNumber && !Cell.IsEmpty)
 			{
-				case UserPlacedValue.BY_GENERATOR:
-					_valueText.color = Color.black;
-					break;
-				case UserPlacedValue.USER_PLACED_GOOD:
-					_valueText.color = Color.blue;
-					break;
-				case UserPlacedValue.USER_PLACED_WRONG:
-					_valueText.color = Color.red;
-					break;
-				default:
-					throw new ArgumentOutOfRangeException();
+				_image.color = _cellColorsSetting._sameWrongNumberInColumnRowGroupBox;
 			}
-
-			switch (cellData.CellState)
+			else
 			{
-				case CellState.NONE:
-					_image.color = Color.white;
-					break;
-				case CellState.SELECTED:
-					_image.color = Color.cyan;
-					break;
-				case CellState.SAME_ROW_COLUMN:
-					_image.color = Color.yellow;
-					break;
-				case CellState.WRONG_VALUE:
-					_image.color = new Color(1,.5f, .5f, 1);
-					break;
-				case CellState.SAME_VALUE:
-					_image.color = new Color(0.25f,.25f, 0, 1);
-					break;
-				case CellState.SAME_GROUP_BOX:
-					_image.color = Color.yellow;
-					break;
-				default:
-					throw new ArgumentOutOfRangeException();
+				_image.color = _cellColorsSetting._sameColumnRowGroupBox;
 			}
 		}
-	*/
+
+		public void ShowSameNumber()
+		{
+			_image.color = _cellColorsSetting._sameNumber;
+		}
 	}
 
 	public interface ICellPresenter
@@ -111,7 +69,7 @@ namespace Gui.Gameplay.Presenters.Cells
 		void OnSpawned(ICell cell, Action onSelectCell);
 		void Deselect();
 		void Select();
-		void SelectSameColumn();
+		void SelectSameColumn(int selectedCellNumber);
 		void ShowSameNumber();
 	}
 }

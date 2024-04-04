@@ -239,6 +239,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _panelHolder: {fileID: 188432379}
   _gameplayPanelPresenter: {fileID: 6739216676454183954, guid: d08d48052d41be046a4e1ff78f0f219c, type: 3}
+  _mainMenuPanelPresenter: {fileID: 7554847400677661896, guid: 4a07593a24161e74a9090c6f26190875, type: 3}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0

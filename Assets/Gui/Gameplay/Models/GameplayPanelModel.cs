@@ -6,17 +6,16 @@ namespace Gui.Gameplay.Models
 {
 	public class GameplayPanelModel
 	{
-		public event Action Setup;
 		public event Action Refresh;
-		public event Action PlaceNewNumber;
 
 		public readonly SudokuBoard SudokuBoard;
 
 		public ICell SelectedCell { get; private set; }
 
-		public IEnumerable<int> Numbers => _playerNumberPlacement.AvailableNumbers;
+		public IReadOnlyList<int> AllNumbers => _inputNumbers.AllNumbers;
+		public IEnumerable<int> AvailableNumbers => _inputNumbers.AvailableNumbers;
 
-		private readonly PlayerNumberPlacement _playerNumberPlacement;
+		private readonly InputNumbers _inputNumbers;
 
 		public GameplayPanelModel(SudokuType sudokuType = SudokuType.NINE_BY_NINE)
 		{
@@ -30,17 +29,12 @@ namespace Gui.Gameplay.Models
 			int column = random.Next(0, SudokuBoard.GetColumnsLength());
 			SelectedCell = SudokuBoard.CellsArray[row, column];
 
-			_playerNumberPlacement = new PlayerNumberPlacement(9);
-		}
-
-		public void Show()
-		{
-			Setup?.Invoke();
+			_inputNumbers = new InputNumbers(9);
+			RefreshAvailableInputNumbers();
 		}
 
 		public void SelectCell(ICell selectedCell)
 		{
-			// _cellDisplays = _sudokuService.GetCellDisplays(selectedCellIndex);
 			SelectedCell = selectedCell;
 
 			Refresh?.Invoke();
@@ -49,10 +43,23 @@ namespace Gui.Gameplay.Models
 		public void PlaceNumber(int number)
 		{
 			SudokuBoard.PlaceValue(number, SelectedCell);
-			SelectedCell = SudokuBoard.CellsArray[SelectedCell.Row, SelectedCell.Column]; 
-			// _sudokuService.PlaceNumber(number, _selectedCellIndex);
-			// _cellDisplays = _sudokuService.GetCellDisplays(_selectedCellIndex);
-			PlaceNewNumber?.Invoke();
+
+			SelectedCell = SudokuBoard.CellsArray[SelectedCell.Row, SelectedCell.Column];
+
+			RefreshAvailableInputNumbers();
+
+			Refresh?.Invoke();
+		}
+
+		private void RefreshAvailableInputNumbers()
+		{
+			for (int i = 1; i <= SudokuBoard.GetRowsLength(); i++)
+			{
+				if (SudokuBoard.IsValueReachMaxOutUsed(i))
+				{
+					_inputNumbers.RemoveNumber(i);
+				}
+			}
 		}
 	}
 }

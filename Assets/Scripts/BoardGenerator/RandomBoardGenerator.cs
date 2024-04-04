@@ -27,7 +27,7 @@ namespace BoardGenerator
 				for (int column = 0; column < _columns; column++)
 				{
 					int groupBox = (row / 3) + 3 * (column / 3) + 1;
-					cells[row, column] = new EmptyCell(row * _rows + column, groupBox, row, column);
+					cells[row, column] = new CellForUser(row * _rows + column, groupBox, row, column, 0, 0);
 				}
 			}
 

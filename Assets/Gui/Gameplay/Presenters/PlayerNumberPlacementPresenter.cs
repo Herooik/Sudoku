@@ -1,32 +1,59 @@
 using System;
 using System.Collections.Generic;
-using TMPro;
+using System.Linq;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Gui.Gameplay.Presenters
 {
 	public class PlayerNumberPlacementPresenter : MonoBehaviour
 	{
-		[SerializeField] private GameObject _numberToPlacePrefab;
+		[SerializeField] private PlacementInputNumber _placementInputNumber;
 
-		private readonly List<GameObject> _numbers = new();
+		private readonly List<PlacementInputNumber> _numbers = new();
 
-		public void Initialize(IEnumerable<int> allNumbers, Action<int> placeNumber)
+		public void Initialize(IReadOnlyList<int> allNumbers, Action<int> placeNumber)
 		{
 			_numbers.Clear();
-			foreach (int number in allNumbers)
+
+			float width = GetComponent<RectTransform>().rect.width / allNumbers.Count();
+
+			for (int index = 0; index < allNumbers.Count; index++)
 			{
-				GameObject num = Instantiate(_numberToPlacePrefab, transform);
-				num.GetComponent<Button>().onClick.AddListener(() => placeNumber.Invoke(number)); // todo add IDisposable
-				num.GetComponentInChildren<TextMeshProUGUI>().SetText(number.ToString());
-				_numbers.Add(num);
+				int number = allNumbers[index];
+				PlacementInputNumber placementInputNumber = Instantiate(_placementInputNumber, transform);
+			
+				placementInputNumber.Setup(number, () => placeNumber.Invoke(number));
+			
+				SetupCellRect(placementInputNumber.GetComponent<RectTransform>(), width, index);
+			
+				_numbers.Add(placementInputNumber);
 			}
 		}
 
-		public void Refresh()
+		public void Refresh(IEnumerable<int> numbers)
 		{
-			
+			foreach (PlacementInputNumber placementInputNumber in _numbers)
+			{
+				if (numbers.Contains(placementInputNumber.Number))
+				{
+					placementInputNumber.gameObject.SetActive(true);
+				}
+				else
+				{
+					placementInputNumber.gameObject.SetActive(false);
+				}
+			}
+		}
+
+		private void SetupCellRect(RectTransform rt, float width, int column)
+		{
+			rt.anchorMin = new Vector2(0.5f, 1);
+			rt.anchorMax = new Vector2(0.5f, 1);
+			rt.sizeDelta = Vector2.one * width;
+
+			float posX = column * width + (GetComponent<RectTransform>().rect.x + width / 2);
+			float posY = -(width / 2);
+			rt.anchoredPosition = new Vector2(posX, posY);
 		}
 	}
 }

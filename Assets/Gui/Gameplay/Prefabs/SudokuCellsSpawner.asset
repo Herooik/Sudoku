@@ -10,21 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 78cc882f9e1c7f34e94123301ba2e9d7, type: 3}
-  m_Name: SudokuGridDisplayConfig
+  m_Name: SudokuCellsSpawner
   m_EditorClassIdentifier: 
-  _displayGridOptions:
-  - SudokuType: 0
-    Columns: 2
-    Rows: 2
-    SubGridColumns: 2
-    SubGridRows: 2
-  - SudokuType: 1
-    Columns: 2
-    Rows: 3
-    SubGridColumns: 3
-    SubGridRows: 2
-  - SudokuType: 3
-    Columns: 3
-    Rows: 3
-    SubGridColumns: 3
-    SubGridRows: 3
+  _solvedByGeneratorCellPresenter: {fileID: 7938506015385696192, guid: 544dbedf414dea747bcbf6a199f1bbc8, type: 3}
+  _cellForUserPresenter: {fileID: -2718969955583513550, guid: 2a769c41168cfb74aba5932aefa0d06d, type: 3}

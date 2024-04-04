@@ -21,7 +21,7 @@ namespace Board
 				for (int column = 0; column < columns; column++)
 				{
 					ICell cell = cells[row, column];
-					if (cell is EmptyCell)
+					if (cell.IsEmpty)
 					{
 						foreach (int number in _numberList)
 						{
@@ -41,7 +41,7 @@ namespace Board
 									return true;
 								}
 
-								cells[row, column] = new EmptyCell(row * rows + column, groupBox, row, column);
+								cells[row, column] = new CellForUser(row * rows + column, groupBox, row, column, 0, 0);
 							}
 						}
 

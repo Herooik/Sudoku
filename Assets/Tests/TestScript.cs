@@ -54,7 +54,11 @@ namespace Tests
 
 			boardGenerator.Generate(sudokuBoard.CellsArray);
 
-			Assert.That(sudokuBoard.CanPlaceValue(5, sudokuBoard.CellsArray[0, 0]), Is.True);
+			sudokuBoard.CellsArray[0, 0] = new CellForUser(0, 0, 0, 0, 0, 5);
+			CellForUser cell = (CellForUser)sudokuBoard.CellsArray[0, 0];
+			sudokuBoard.PlaceValue(5, cell);
+
+			Assert.That(cell.IsFilledGood, Is.True);
 		}
 
 		
@@ -68,38 +72,59 @@ namespace Tests
 			IBoardGenerator boardGenerator = new EmptyBoardGenerator(sudokuBoard.GetRowsLength(), sudokuBoard.GetColumnsLength());
 
 			boardGenerator.Generate(sudokuBoard.CellsArray);
-			sudokuBoard.PlaceValue(5, sudokuBoard.CellsArray[0,0]);
 
-			Assert.That(sudokuBoard.CanPlaceValue(5, sudokuBoard.CellsArray[0, 1]), Is.False);
+			sudokuBoard.CellsArray[0, 0] = new CellForUser(0, 0, 0, 0, 0, 7);
+			CellForUser cell = (CellForUser)sudokuBoard.CellsArray[0, 0];
+			sudokuBoard.PlaceValue(3, cell);
+
+			Assert.That(cell.IsFilledGood, Is.False);
 		}
 
 		[Test]
-		public void ValuesToPlace()
+		public void ValuesToPlace1()
 		{
 			int rows = 9;
 			int columns = 9;
 			GridSolver gridSolver = new GridSolver();
 			SudokuBoard sudokuBoard = new SudokuBoard(rows, columns, gridSolver);
-			// IBoardGenerator boardGenerator = new RandomBoardGenerator(sudokuBoard.GetRowsLength(), sudokuBoard.GetColumnsLength(), gridSolver, sudokuBoard.CanPlaceValue, sudokuBoard.IsFullFilled);
 			IBoardGenerator boardGenerator = new EmptyBoardGenerator(sudokuBoard.GetRowsLength(), sudokuBoard.GetColumnsLength());
-			PlayerNumberPlacement playerNumberPlacement = new PlayerNumberPlacement(9);
+			InputNumbers inputNumbers = new InputNumbers(9);
 
 			boardGenerator.Generate(sudokuBoard.CellsArray);
 
-			var temp = sudokuBoard.CellsArray[0, 0];
-			// sudokuBoard.CellsArray[0, 0] = new CellFilledByUserInput(temp.Index, temp.GroupBox, temp.Row, temp.Column, 5, false);
+			Assert.That(inputNumbers.AvailableNumbers.Count, Is.EqualTo(sudokuBoard.GetRowsLength()));
+		}
 
-			// _board.Cells[0].RemoveValue();
-			//
-			// for (int i = 1; i <= _board.GetColumnsLength(); i++)
-			// {
-			// 	if (_board.IsValueReachMaxOutUsed(i))
-			// 	{
-			// 		playerNumberPlacement.RemoveNumber(i);
-			// 	}
-			// }
+		[Test]
+		public void ValuesToPlace2()
+		{
+			int rows = 9;
+			int columns = 9;
+			GridSolver gridSolver = new GridSolver();
+			SudokuBoard sudokuBoard = new SudokuBoard(rows, columns, gridSolver);
+			IBoardGenerator boardGenerator = new RandomBoardGenerator(sudokuBoard.GetRowsLength(), sudokuBoard.GetColumnsLength(), gridSolver, sudokuBoard.CanPlaceValue, sudokuBoard.IsFullFilled);
+			InputNumbers inputNumbers = new InputNumbers(9);
+			int numberToRemove = 1;
 
-			Assert.That(playerNumberPlacement.AvailableNumbers.Count, Is.EqualTo(1));
+			boardGenerator.Generate(sudokuBoard.CellsArray);
+
+			foreach (ICell cell in sudokuBoard.CellsArray)
+			{
+				if (cell.Number == numberToRemove)
+				{
+					sudokuBoard.SetCellAsEmpty(cell);
+				}
+			}
+
+			for (int i = 1; i <= sudokuBoard.GetRowsLength(); i++)
+			{
+				if (sudokuBoard.IsValueReachMaxOutUsed(i))
+				{
+					inputNumbers.RemoveNumber(i);
+				}
+			}
+
+			Assert.That(inputNumbers.AvailableNumbers.Count(), Is.EqualTo(1));
 		}
 	}
 }
