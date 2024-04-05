@@ -14,26 +14,24 @@ namespace Gui.Gameplay.Presenters
 
 		private ICellPresenter[,] _cellPresenters;
 		private SudokuBoard _sudokuBoard;
-		private Action<ICell> _onSelectCell;
 
 		public void Initialize(SudokuBoard sudokuBoard, Action<ICell> onSelectCell)
 		{
 			_sudokuBoard = sudokuBoard;
-			_onSelectCell = onSelectCell;
 
 			// todo instantiate groupboxes and then cells inside them
 			// we can control then groupbox to check if there is a a value etc.
 
-			float width = _holder.rect.width / sudokuBoard.GetColumnsLength();
+			float width = _holder.rect.width / sudokuBoard.CellsArray.GetColumnsLength();
 
-			_cellPresenters = new ICellPresenter[sudokuBoard.GetRowsLength(), sudokuBoard.GetColumnsLength()];
+			_cellPresenters = new ICellPresenter[sudokuBoard.CellsArray.GetRowsLength(), sudokuBoard.CellsArray.GetColumnsLength()];
 			foreach (ICell cell in sudokuBoard.CellsArray)
 			{
 				int row = cell.Row;
 				int column = cell.Column;
 
 				ICellPresenter cellPresenter = _sudokuCellsSpawner.SpawnCell(cell, _holder);
-				cellPresenter.OnSpawned(cell, () => _onSelectCell.Invoke(cell));
+				cellPresenter.OnSpawned(cell, () => onSelectCell.Invoke(cell));
 
 				cellPresenter.RectTransform.name = $"[{row}, {column}]";
 
@@ -67,11 +65,11 @@ namespace Gui.Gameplay.Presenters
 				_cellPresenters[cell.Row, cell.Column].ShowSameNumber();
 			}
 
-			for (int i = 0; i < _sudokuBoard.GetRowsLength(); i++)
+			for (int i = 0; i < _sudokuBoard.CellsArray.GetRowsLength(); i++)
 			{
 				_cellPresenters[i, selectedCell.Column].SelectSameColumn(selectedCell.Number);
 			}
-			for (int i = 0; i < _sudokuBoard.GetColumnsLength(); i++)
+			for (int i = 0; i < _sudokuBoard.CellsArray.GetColumnsLength(); i++)
 			{
 				_cellPresenters[selectedCell.Row, i].SelectSameColumn(selectedCell.Number);
 			}

@@ -4,18 +4,20 @@ using NumberGenerator;
 
 namespace Board
 {
-	public class GridSolver
+	public class BoardSolver : IBoardSolver
 	{
 		private readonly IEnumerable<int> _numberList;
 
-		public GridSolver()
+		public BoardSolver()
 		{
 			RandomNumberListGenerator numberListGenerator = new RandomNumberListGenerator();
 			_numberList = numberListGenerator.GenerateNumbers(9);
 		}
 
-		public bool Solve(int rows, int columns, ICell[,] cells, Func<int, ICell, bool> canPlaceValue, Func<bool> isBoardFullFilled)
+		public bool Solve(ICell[,] cells, Func<int, ICell, bool> canPlaceValue, Func<bool> isBoardFullFilled)
 		{
+			int rows = cells.GetRowsLength();
+			int columns = cells.GetColumnsLength();
 			for (int row = 0; row < rows; row++)
 			{
 				for (int column = 0; column < columns; column++)
@@ -36,7 +38,7 @@ namespace Board
 									return true;
 								}
 
-								if (Solve(rows, columns, cells, canPlaceValue, isBoardFullFilled))
+								if (Solve(cells, canPlaceValue, isBoardFullFilled))
 								{
 									return true;
 								}
@@ -52,6 +54,62 @@ namespace Board
 
 			return true;
 		}
+	}
 
+	public class ExistedBoardSolverTEMP : IBoardSolver
+	{
+		private readonly IEnumerable<int> _numberList;
+
+		public ExistedBoardSolverTEMP()
+		{
+			RandomNumberListGenerator numberListGenerator = new RandomNumberListGenerator();
+			_numberList = numberListGenerator.GenerateNumbers(9);
+		}
+
+		public bool Solve(ICell[,] cells, Func<int, ICell, bool> canPlaceValue, Func<bool> isBoardFullFilled)
+		{
+			int rows = cells.GetRowsLength();
+			int columns = cells.GetColumnsLength();
+			for (int row = 0; row < rows; row++)
+			{
+				for (int column = 0; column < columns; column++)
+				{
+					ICell cell = cells[row, column];
+					if (cell.IsEmpty)
+					{
+						foreach (int number in _numberList)
+						{
+							if (canPlaceValue.Invoke(number, cell))
+							{
+								int groupBox = (row / 3) + 3 * (column / 3) + 1;
+
+								cells[row, column] = new CellForUser(row * rows + column, groupBox, row, column, number, number);
+
+								if (isBoardFullFilled.Invoke())
+								{
+									return true;
+								}
+
+								if (Solve(cells, canPlaceValue, isBoardFullFilled))
+								{
+									return true;
+								}
+
+								cells[row, column] = new CellForUser(row * rows + column, groupBox, row, column, 0, 0);
+							}
+						}
+
+						return false;
+					}
+				}
+			}
+
+			return true;
+		}
+	}
+
+	public interface IBoardSolver
+	{
+		public bool Solve(ICell[,] cells, Func<int, ICell, bool> canPlaceValue, Func<bool> isBoardFullFilled);
 	}
 }

@@ -1,6 +1,6 @@
 ﻿using Gui.Gameplay.Models;
 using UnityEngine;
-using UnityEngine.Serialization;
+using UnityEngine.UI;
 
 namespace Gui.Gameplay.Presenters
 {
@@ -8,6 +8,8 @@ namespace Gui.Gameplay.Presenters
 	{
 		[SerializeField] private BoardPanelPresenter _boardPanelPresenter;
 		[SerializeField] private PlayerNumberPlacementPresenter _playerNumberPlacementPresenter;
+		[SerializeField] private Button _autoSolveButton;
+		[SerializeField] private Button _cleanButton;
 
 		private GameplayPanelModel _model;
 
@@ -17,6 +19,8 @@ namespace Gui.Gameplay.Presenters
 
 			_boardPanelPresenter.Initialize(_model.SudokuBoard, _model.SelectCell);
 			_playerNumberPlacementPresenter.Initialize(_model.AllNumbers, _model.PlaceNumber);
+			_autoSolveButton.onClick.AddListener(_model.AutoSolveBoard);
+			_cleanButton.onClick.AddListener(_model.CleanCell);
 
 			_model.Refresh += OnRefresh;
 			OnRefresh();

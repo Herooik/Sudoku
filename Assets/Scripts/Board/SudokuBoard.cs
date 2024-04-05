@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using BoardGenerator;
 using UnityEngine;
 
@@ -10,20 +12,20 @@ namespace Board
 
 		private readonly int _rows;
 		private readonly int _columns;
-		private readonly GridSolver _gridSolver;
+		private readonly IBoardSolver _boardSolver;
 
-		public SudokuBoard(int rows, int columns, GridSolver gridSolver)
+		public SudokuBoard(int rows, int columns, IBoardSolver boardSolver)
 		{
 			_rows = rows;
 			_columns = columns;
-			_gridSolver = gridSolver;
+			_boardSolver = boardSolver;
 
 			CellsArray = new ICell[rows, columns];
 		}
 
 		public void GenerateNewBoard(int cellsToRemove)
 		{
-			IBoardGenerator boardGenerator = new RandomBoardGenerator(_rows, _columns, _gridSolver, CanPlaceValue, IsFullFilled);
+			IBoardGenerator boardGenerator = new RandomBoardGenerator(_rows, _columns, _boardSolver, CanPlaceValue, IsFullFilled);
 			boardGenerator.Generate(CellsArray);
 
 			RemoveRandomCellsHandler.RemoveRandomCellsFromBoard(CellsArray, cellsToRemove, SetCellAsEmpty);
@@ -39,16 +41,6 @@ namespace Board
 			return true;
 		}
 
-		public int GetRowsLength()
-		{
-			return CellsArray.GetLength(0);
-		}
-		
-		public int GetColumnsLength()
-		{
-			return CellsArray.GetLength(1);
-		}
-
 		public bool IsValueReachMaxOutUsed(int value) //todo CHANGE NAME
 		{
 			int count = 0;
@@ -59,7 +51,7 @@ namespace Board
 					count++;
 				}
 			}
-			return count == GetColumnsLength();
+			return count == CellsArray.GetColumnsLength();
 		}
 
 		public void PlaceValue(int value, ICell targetCell)
@@ -151,6 +143,12 @@ namespace Board
 		{
 			ICell temp = CellsArray[cell.Row, cell.Column];
 			CellsArray[cell.Row, cell.Column] = new CellForUser(temp.Index, temp.GroupBox, temp.Row, temp.Column, 0, temp.Number);
+		}
+
+		public bool IsGameEnd()
+		{
+			int count = CellsArray.Cast<ICell>().Count(cell => cell.IsFilledGood);
+			return count == CellsArray.Length;
 		}
 	}
 }

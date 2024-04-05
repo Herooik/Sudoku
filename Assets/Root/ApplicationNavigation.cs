@@ -25,7 +25,7 @@ namespace Root
 		public void OpenGameplay(SudokuDifficulty selectedDifficulty)
 		{
 			//todo make it generic using MVP pattern
-			GameplayPanelModel model = new GameplayPanelModel(_difficultyRulesSettings, SudokuType.NINE_BY_NINE, selectedDifficulty);
+			GameplayPanelModel model = new GameplayPanelModel(this, _difficultyRulesSettings, SudokuType.NINE_BY_NINE, selectedDifficulty);
 			GameObject presenter = Instantiate(_gameplayPanelPresenter, _panelHolder).gameObject;
 			presenter.GetComponent<GameplayPanelPresenter>().Bind(model);
 		}

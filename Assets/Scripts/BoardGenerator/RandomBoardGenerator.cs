@@ -7,15 +7,15 @@ namespace BoardGenerator
 	{
 		private readonly int _rows;
 		private readonly int _columns;
-		private readonly GridSolver _gridSolver;
+		private readonly IBoardSolver _boardSolver;
 		private readonly Func<int, ICell, bool> _canPlaceValue;
 		private readonly Func<bool> _isFullFilled;
 
-		public RandomBoardGenerator(int rows, int columns, GridSolver gridSolver, Func<int, ICell, bool> canPlaceValue, Func<bool> isFullFilled)
+		public RandomBoardGenerator(int rows, int columns, IBoardSolver boardSolver, Func<int, ICell, bool> canPlaceValue, Func<bool> isFullFilled)
 		{
 			_rows = rows;
 			_columns = columns;
-			_gridSolver = gridSolver;
+			_boardSolver = boardSolver;
 			_canPlaceValue = canPlaceValue;
 			_isFullFilled = isFullFilled;
 		}
@@ -31,7 +31,7 @@ namespace BoardGenerator
 				}
 			}
 
-			_gridSolver.Solve(_rows, _columns, cells, _canPlaceValue, _isFullFilled);
+			_boardSolver.Solve(cells, _canPlaceValue, _isFullFilled);
 		}
 	}
 }
