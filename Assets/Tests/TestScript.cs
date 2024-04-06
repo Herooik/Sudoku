@@ -7,16 +7,6 @@ namespace Tests
 {
 	public class TestScript
 	{
-		// private SudokuBoard _board;
-
-		[SetUp]
-		public void Setup()
-		{
-			// GridSolver gridSolver = new();
-			// DisplayGridConfig rules = SudokuGridRules.GetRules(SudokuType.NINE_BY_NINE);
-			// _board = new SudokuBoard(rules.Rows, rules.Columns, gridSolver);
-		}
-
 		[Test]
 		public void GenerateSolvableGrid()
 		{
@@ -56,7 +46,7 @@ namespace Tests
 
 			sudokuBoard.CellsArray[0, 0] = new CellForUser(0, 0, 0, 0, 0, 5);
 			CellForUser cell = (CellForUser)sudokuBoard.CellsArray[0, 0];
-			sudokuBoard.PlaceValue(5, cell);
+			sudokuBoard.PlaceValue(5, cell.Row, cell.Column);
 
 			Assert.That(cell.IsFilledGood, Is.True);
 		}
@@ -75,13 +65,13 @@ namespace Tests
 
 			sudokuBoard.CellsArray[0, 0] = new CellForUser(0, 0, 0, 0, 0, 7);
 			CellForUser cell = (CellForUser)sudokuBoard.CellsArray[0, 0];
-			sudokuBoard.PlaceValue(3, cell);
+			sudokuBoard.PlaceValue(3, cell.Row, cell.Column);
 
 			Assert.That(cell.IsFilledGood, Is.False);
 		}
 
 		[Test]
-		public void ValuesToPlace1()
+		public void Are_Input_Numbers_Correct_On_Init()
 		{
 			int rows = 9;
 			int columns = 9;
@@ -96,7 +86,7 @@ namespace Tests
 		}
 
 		[Test]
-		public void ValuesToPlace2()
+		public void Are_Input_Numbers_Correct_After_Clean_Cell()
 		{
 			int rows = 9;
 			int columns = 9;

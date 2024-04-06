@@ -54,22 +54,29 @@ namespace Board
 			return count == CellsArray.GetColumnsLength();
 		}
 
-		public void PlaceValue(int value, ICell targetCell)
+		public void PlaceValue(int value, int cellRow, int cellColumn)
 		{
+			ICell targetCell = CellsArray[cellRow, cellColumn];
 			if (targetCell is CellForUser cellForUser)
 			{
-				if (cellForUser.Number == value)
-				{
-					cellForUser.SetEmpty();
-				}
-				else
-				{
-					cellForUser.FillCell(value);
-				}
+				cellForUser.FillCell(value);
 			}
 			else
 			{
 				Debug.LogWarning("CAN'T PLACE NUMBER ON GENERATED CELL");
+			}
+		}
+
+		public void CleanCell(int cellRow, int cellColumn)
+		{
+			ICell targetCell = CellsArray[cellRow, cellColumn];
+			if (targetCell is CellForUser cellForUser)
+			{
+				cellForUser.SetEmpty();
+			}
+			else
+			{
+				Debug.LogWarning("CAN'T CLEAN NUMBER ON GENERATED CELL");
 			}
 		}
 

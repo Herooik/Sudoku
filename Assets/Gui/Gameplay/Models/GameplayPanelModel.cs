@@ -13,13 +13,15 @@ namespace Gui.Gameplay.Models
 
 		public readonly SudokuBoard SudokuBoard;
 
-		public ICell SelectedCell { get; private set; }
 		public IReadOnlyList<int> AllNumbers => _inputNumbers.AllNumbers;
 		public IEnumerable<int> AvailableNumbers => _inputNumbers.AvailableNumbers;
-		public bool AutoSolverActive { get; private set; }
+		public IReadOnlyList<CellDisplayData> CellDisplayDataList => _cellDisplayDataList;
 
 		private readonly InputNumbers _inputNumbers;
-		public CellDisplayData[,] CellDisplayDatas;
+		private readonly List<CellDisplayData> _cellDisplayDataList;
+
+		private CellDisplayData _selectedCell => _cellDisplayDataList[_selectedCellIndex];
+		private int _selectedCellIndex;
 
 		public GameplayPanelModel(
 			ApplicationNavigation applicationNavigation,
@@ -34,21 +36,22 @@ namespace Gui.Gameplay.Models
 			SudokuBoard = new SudokuBoard(rules.Rows, rules.Columns, boardSolver);
 			SudokuBoard.GenerateNewBoard(difficultyRulesSettings.GetCellsToRemove(sudokuType, selectedDifficulty));
 
+			_cellDisplayDataList = new List<CellDisplayData>(new CellDisplayData[SudokuBoard.CellsArray.Length]);
+
 			Random random = new();
-			int row = random.Next(0, SudokuBoard.CellsArray.GetRowsLength());
-			int column = random.Next(0, SudokuBoard.CellsArray.GetColumnsLength());
-			SelectedCell = SudokuBoard.CellsArray[row, column];
+			int row = random.Next(0, rules.Rows);
+			int column = random.Next(0, rules.Columns);
+			_selectedCellIndex = SudokuBoard.CellsArray[row, column].Index;
 
 			_inputNumbers = new InputNumbers(9);
-			RefreshAvailableInputNumbers();
 
-			CellDisplayDatas = new CellDisplayData[rules.Rows, rules.Columns];
+			RefreshAvailableInputNumbers();
 			RefreshCellDisplays();
 		}
 
-		public void SelectCell(ICell selectedCell)
+		public void SelectCell(int selectedCellIndex)
 		{
-			SelectedCell = selectedCell;
+			_selectedCellIndex = selectedCellIndex;
 
 			RefreshCellDisplays();
 			Refresh?.Invoke();
@@ -56,11 +59,14 @@ namespace Gui.Gameplay.Models
 
 		public void PlaceNumber(int number)
 		{
-			SudokuBoard.PlaceValue(number, SelectedCell);
-
-			SelectedCell = SudokuBoard.CellsArray[SelectedCell.Row, SelectedCell.Column];
-
-			RefreshAvailableInputNumbers();
+			if (_selectedCell.Number == number)
+			{
+				SudokuBoard.CleanCell(_selectedCell.Row, _selectedCell.Column);
+			}
+			else
+			{
+				SudokuBoard.PlaceValue(number, _selectedCell.Row, _selectedCell.Column);
+			}
 
 			bool isGameEnd = SudokuBoard.IsGameEnd();
 			if (isGameEnd)
@@ -68,6 +74,7 @@ namespace Gui.Gameplay.Models
 				_applicationNavigation.OpenMainMenu();
 			}
 
+			RefreshAvailableInputNumbers();
 			RefreshCellDisplays();
 			Refresh?.Invoke();
 		}
@@ -75,23 +82,18 @@ namespace Gui.Gameplay.Models
 		public void AutoSolveBoard()
 		{
 			IBoardSolver boardSolver = new ExistedBoardSolverTEMP();
-			bool solved = boardSolver.Solve(SudokuBoard.CellsArray, SudokuBoard.CanPlaceValue,
-				SudokuBoard.IsFullFilled);
+			boardSolver.Solve(SudokuBoard.CellsArray, SudokuBoard.CanPlaceValue, SudokuBoard.IsFullFilled);
 
-			SelectedCell = SudokuBoard.CellsArray[SelectedCell.Row, SelectedCell.Column];
-
+			RefreshAvailableInputNumbers();
 			RefreshCellDisplays();
 			Refresh?.Invoke();
 		}
 
 		public void CleanCell()
 		{
-			SudokuBoard.PlaceValue(SelectedCell.Number, SelectedCell);
-
-			SelectedCell = SudokuBoard.CellsArray[SelectedCell.Row, SelectedCell.Column];
+			SudokuBoard.CleanCell(_selectedCell.Row, _selectedCell.Column);
 
 			RefreshAvailableInputNumbers();
-
 			RefreshCellDisplays();
 			Refresh?.Invoke();
 		}
@@ -104,6 +106,10 @@ namespace Gui.Gameplay.Models
 				{
 					_inputNumbers.RemoveNumber(i);
 				}
+				else
+				{
+					_inputNumbers.AddNumber(i);
+				}
 			}
 		}
 
@@ -111,54 +117,80 @@ namespace Gui.Gameplay.Models
 		{
 			foreach (ICell cell in SudokuBoard.CellsArray)
 			{
-				CellDisplayDatas[cell.Row, cell.Column] = new CellDisplayData(cell.Row, cell.Column, State.DEFAULT, cell.IsFilledGood, cell.Number, cell.IsEmpty); 
-			}
+				State state = State.DEFAULT;
 
-			IEnumerable<ICell> cellsWithSameNumber = SudokuBoard.GetFilledCellsWithSameNumber(SelectedCell.Number);
+				if (!cell.IsEmpty && cell.Number == _selectedCell.Number)
+				{
+					state = State.SAME_NUMBER;
+				}
+
+				if (cell.Row == _selectedCell.Row || cell.Column == _selectedCell.Column || cell.GroupBox == _selectedCell.GroupBox)
+				{
+					state = State.SAME_ROW_COLUMN_GROUP;
+					if (!cell.IsEmpty && cell.Number == _selectedCell.Number)
+					{
+						state = State.SAME_WRONG_NUMBER_IN_ROW_COLUMN_GROUP;
+					}
+				}
+
+				if (cell.Index == _selectedCellIndex)
+				{
+					state = State.SELECTED;
+				}
+
+				_cellDisplayDataList[cell.Index] = new CellDisplayData(cell.Row,
+					cell.Column,
+					cell.GroupBox,
+					state,
+					cell.IsFilledGood,
+					cell.Number,
+					cell.IsEmpty,
+					cell is SolvedByGeneratorCell);
+			}
+			/*foreach (ICell cell in SudokuBoard.CellsArray)
+			{
+				_cellDisplayDataList[cell.Index] = new CellDisplayData(cell.Row, cell.Column, State.DEFAULT, cell.IsFilledGood, cell.Number, cell.IsEmpty);
+			}
+			
+			IEnumerable<ICell> cellsWithSameNumber = SudokuBoard.GetFilledCellsWithSameNumber(_selectedCell.Number);
 			foreach (ICell cell in cellsWithSameNumber)
 			{
-				CellDisplayDatas[cell.Row, cell.Column] = new CellDisplayData(cell.Row, cell.Column, State.SAME_NUMBER, cell.IsFilledGood, cell.Number, cell.IsEmpty); 
+				_cellDisplayDataList[cell.Index] = new CellDisplayData(cell.Row, cell.Column, State.SAME_NUMBER, cell.IsFilledGood, cell.Number, cell.IsEmpty);
 			}
-
+			
 			for (int i = 0; i < SudokuBoard.CellsArray.GetRowsLength(); i++)
 			{
-				ICell cell = SudokuBoard.CellsArray[i, SelectedCell.Column];
-				if (cell.Number == SelectedCell.Number && !cell.IsEmpty)
+				ICell cell = SudokuBoard.CellsArray[i, _selectedCell.Column];
+				State state = State.SAME_ROW_COLUMN_GROUP;
+				if (cell.Number == _selectedCell.Number && !cell.IsEmpty)
 				{
-					CellDisplayDatas[i, SelectedCell.Column] = new CellDisplayData(cell.Row, cell.Column, State.SAME_WRONG_NUMBER_IN_ROW_COLUMN_GROUP, cell.IsFilledGood, cell.Number, cell.IsEmpty);
+					state = State.SAME_WRONG_NUMBER_IN_ROW_COLUMN_GROUP;
 				}
-				else
-				{
-					CellDisplayDatas[i, SelectedCell.Column] = new CellDisplayData(cell.Row, cell.Column, State.SAME_ROW_COLUMN_GROUP, cell.IsFilledGood, cell.Number, cell.IsEmpty);
-				}
+				_cellDisplayDataList[cell.Index] = new CellDisplayData(cell.Row, cell.Column, state, cell.IsFilledGood, cell.Number, cell.IsEmpty);
 			}
-
+			
 			for (int i = 0; i < SudokuBoard.CellsArray.GetColumnsLength(); i++)
 			{
-				ICell cell = SudokuBoard.CellsArray[SelectedCell.Row, i];
-				if (cell.Number == SelectedCell.Number && !cell.IsEmpty)
+				ICell cell = SudokuBoard.CellsArray[_selectedCell.Row, i];
+				State state = State.SAME_ROW_COLUMN_GROUP;
+				if (cell.Number == _selectedCell.Number && !cell.IsEmpty)
 				{
-					CellDisplayDatas[SelectedCell.Row, i] = new CellDisplayData(cell.Row, cell.Column, State.SAME_WRONG_NUMBER_IN_ROW_COLUMN_GROUP, cell.IsFilledGood, cell.Number, cell.IsEmpty);
+					state = State.SAME_WRONG_NUMBER_IN_ROW_COLUMN_GROUP;
 				}
-				else
-				{
-					CellDisplayDatas[SelectedCell.Row, i] = new CellDisplayData(cell.Row, cell.Column, State.SAME_ROW_COLUMN_GROUP, cell.IsFilledGood, cell.Number, cell.IsEmpty);
-				}
+				_cellDisplayDataList[cell.Index] = new CellDisplayData(cell.Row, cell.Column, state, cell.IsFilledGood, cell.Number, cell.IsEmpty);
 			}
-
-			foreach (ICell cell in SudokuBoard.GetCellsWithSameGroupBox(SelectedCell.GroupBox))
+			
+			foreach (ICell cell in SudokuBoard.GetCellsWithSameGroupBox(_selectedCell.GroupBox))
 			{
-				if (cell.Number == SelectedCell.Number && !cell.IsEmpty)
+				State state = State.SAME_ROW_COLUMN_GROUP;
+				if (cell.Number == _selectedCell.Number && !cell.IsEmpty)
 				{
-					CellDisplayDatas[cell.Row, cell.Column] = new CellDisplayData(cell.Row, cell.Column, State.SAME_WRONG_NUMBER_IN_ROW_COLUMN_GROUP, cell.IsFilledGood, cell.Number, cell.IsEmpty);
+					state = State.SAME_WRONG_NUMBER_IN_ROW_COLUMN_GROUP;
 				}
-				else
-				{
-					CellDisplayDatas[cell.Row, cell.Column] = new CellDisplayData(cell.Row, cell.Column, State.SAME_ROW_COLUMN_GROUP, cell.IsFilledGood, cell.Number, cell.IsEmpty);
-				}
+				_cellDisplayDataList[cell.Index] = new CellDisplayData(cell.Row, cell.Column, state, cell.IsFilledGood, cell.Number, cell.IsEmpty);
 			}
 
-			CellDisplayDatas[SelectedCell.Row, SelectedCell.Column] = new CellDisplayData(SelectedCell.Row, SelectedCell.Column, State.SELECTED, SelectedCell.IsFilledGood, SelectedCell.Number, SelectedCell.IsEmpty);
+			_cellDisplayDataList[_selectedCell.Index] = new CellDisplayData(_selectedCell.Row, _selectedCell.Column, State.SELECTED, _selectedCell.IsFilledGood, _selectedCell.Number, _selectedCell.IsEmpty);*/
 		}
 	}
 }
@@ -176,21 +208,33 @@ public readonly struct CellDisplayData
 {
 	public readonly int Row;
 	public readonly int Column;
+	public readonly int GroupBox;
 	public readonly State State;
 	public readonly bool IsFilledGood;
-	public string Num => _isEmpty ? string.Empty : _number.ToString();
+	public readonly int Number;
+	public readonly bool AutoGeneratedCell;
 
-	private readonly int _number;
+	public string Num => _isEmpty ? string.Empty : Number.ToString();
+
 	private readonly bool _isEmpty;
 
-	public CellDisplayData(int row, int column, State state, bool isFilledGood, int number, bool isEmpty)
+	public CellDisplayData(int row,
+		int column,
+		int groupBox,
+		State state,
+		bool isFilledGood,
+		int number,
+		bool isEmpty,
+		bool autoGeneratedCell)
 	{
 		Row = row;
 		Column = column;
+		GroupBox = groupBox;
 		State = state;
 		IsFilledGood = isFilledGood;
+		Number = number;
+		AutoGeneratedCell = autoGeneratedCell;
 
-		_number = number;
 		_isEmpty = isEmpty;
 	}
 }

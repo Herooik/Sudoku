@@ -21,6 +21,13 @@ public class InputNumbers
 
 	public void RemoveNumber(int number)
 	{
-		_availableNumbers.Remove(number);
+		if (_availableNumbers.Contains(number)) 
+			_availableNumbers.Remove(number);
+	}
+
+	public void AddNumber(int number)
+	{
+		if (!_availableNumbers.Contains(number))
+			_availableNumbers.Add(number);
 	}
 }
