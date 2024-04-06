@@ -17,7 +17,7 @@ namespace Gui.Gameplay.Presenters
 		{
 			_model = model;
 
-			_boardPanelPresenter.Initialize(_model.SudokuBoard, _model.SelectCell);
+			_boardPanelPresenter.Initialize(_model.SudokuBoard, _model.SelectCell, _model.CellDisplayDatas);
 			_playerNumberPlacementPresenter.Initialize(_model.AllNumbers, _model.PlaceNumber);
 			_autoSolveButton.onClick.AddListener(_model.AutoSolveBoard);
 			_cleanButton.onClick.AddListener(_model.CleanCell);
@@ -33,7 +33,7 @@ namespace Gui.Gameplay.Presenters
 
 		private void OnRefresh()
 		{
-			_boardPanelPresenter.Refresh(_model.SelectedCell);
+			_boardPanelPresenter.Refresh(_model.CellDisplayDatas);
 			_playerNumberPlacementPresenter.Refresh(_model.AvailableNumbers);
 		}
 	}

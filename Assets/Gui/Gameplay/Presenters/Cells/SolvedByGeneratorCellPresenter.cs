@@ -4,11 +4,11 @@ namespace Gui.Gameplay.Presenters.Cells
 {
 	public class SolvedByGeneratorCellPresenter : CellPresenterBase
 	{
-		public override void OnSpawned(ICell cell, Action onSelectCell)
+		public override void OnSpawned(CellDisplayData cellDisplayData, Action onSelectCell)
 		{
-			base.OnSpawned(cell, onSelectCell);
+			base.OnSpawned(cellDisplayData, onSelectCell);
 
-			_valueText.SetText(Cell.Number.ToString());
+			_valueText.SetText(cellDisplayData.Num);
 		}
 	}
 }

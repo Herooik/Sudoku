@@ -23,54 +23,43 @@ namespace Gui.Gameplay.Presenters.Cells
 		[SerializeField] protected TextMeshProUGUI _valueText;
 		[SerializeField] protected CellColorsSetting _cellColorsSetting;
 
-		private protected ICell Cell;
-
 		private RectTransform _rectTransform;
 
-		public virtual void OnSpawned(ICell cell, Action onSelectCell)
+		public virtual void OnSpawned(CellDisplayData cellDisplayData, Action onSelectCell)
 		{
-			Cell = cell;
 			_button.onClick.AddListener(() =>
 			{
 				onSelectCell?.Invoke();
 			});
 		}
 
-		public void Deselect()
+		public virtual void Refresh(CellDisplayData cellDisplayData)
 		{
-			_image.color = _cellColorsSetting._default;
-		}
-
-		public virtual void Select()
-		{
-			_image.color = _cellColorsSetting._selected;
-		}
-
-		public void SelectSameColumn(int selectedCellNumber)
-		{
-			if (Cell.Number == selectedCellNumber && !Cell.IsEmpty)
+			switch (cellDisplayData.State)
 			{
-				_image.color = _cellColorsSetting._sameWrongNumberInColumnRowGroupBox;
+				case State.DEFAULT:
+					_image.color = _cellColorsSetting._default;
+					break;
+				case State.SELECTED:
+					_image.color = _cellColorsSetting._selected;
+					break;
+				case State.SAME_NUMBER:
+					_image.color = _cellColorsSetting._sameNumber;
+					break;
+				case State.SAME_ROW_COLUMN_GROUP:
+					_image.color = _cellColorsSetting._sameColumnRowGroupBox;
+					break;
+				case State.SAME_WRONG_NUMBER_IN_ROW_COLUMN_GROUP:
+					_image.color = _cellColorsSetting._sameWrongNumberInColumnRowGroupBox;
+					break;
 			}
-			else
-			{
-				_image.color = _cellColorsSetting._sameColumnRowGroupBox;
-			}
-		}
-
-		public void ShowSameNumber()
-		{
-			_image.color = _cellColorsSetting._sameNumber;
 		}
 	}
 
 	public interface ICellPresenter
 	{
 		RectTransform RectTransform { get; }
-		void OnSpawned(ICell cell, Action onSelectCell);
-		void Deselect();
-		void Select();
-		void SelectSameColumn(int selectedCellNumber);
-		void ShowSameNumber();
+		void OnSpawned(CellDisplayData cellDisplayData, Action onSelectCell);
+		void Refresh(CellDisplayData cellDisplayData);
 	}
 }

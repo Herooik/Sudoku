@@ -13,25 +13,24 @@ namespace Gui.Gameplay.Presenters
 		[SerializeField] private SudokuCellsSpawner _sudokuCellsSpawner;
 
 		private ICellPresenter[,] _cellPresenters;
-		private SudokuBoard _sudokuBoard;
 
-		public void Initialize(SudokuBoard sudokuBoard, Action<ICell> onSelectCell)
+		public void Initialize(SudokuBoard sudokuBoard, Action<ICell> onSelectCell, CellDisplayData[,] cellDisplays)
 		{
-			_sudokuBoard = sudokuBoard;
-
+			// todo remove sudokuBoard parameter
 			// todo instantiate groupboxes and then cells inside them
 			// we can control then groupbox to check if there is a a value etc.
 
 			float width = _holder.rect.width / sudokuBoard.CellsArray.GetColumnsLength();
 
 			_cellPresenters = new ICellPresenter[sudokuBoard.CellsArray.GetRowsLength(), sudokuBoard.CellsArray.GetColumnsLength()];
+
 			foreach (ICell cell in sudokuBoard.CellsArray)
 			{
 				int row = cell.Row;
 				int column = cell.Column;
 
 				ICellPresenter cellPresenter = _sudokuCellsSpawner.SpawnCell(cell, _holder);
-				cellPresenter.OnSpawned(cell, () => onSelectCell.Invoke(cell));
+				cellPresenter.OnSpawned(cellDisplays[row, column], () => onSelectCell.Invoke(cell));
 
 				cellPresenter.RectTransform.name = $"[{row}, {column}]";
 
@@ -52,34 +51,12 @@ namespace Gui.Gameplay.Presenters
 			cellPresenterRt.anchoredPosition = new Vector2(posX, posY);
 		}
 
-		public void Refresh(ICell selectedCell)
+		public void Refresh(CellDisplayData[,] cellDisplays)
 		{
-			foreach (ICellPresenter cellPresenter in _cellPresenters)
+			foreach (CellDisplayData cellDisplayData in cellDisplays)
 			{
-				cellPresenter.Deselect();
+				_cellPresenters[cellDisplayData.Row, cellDisplayData.Column].Refresh(cellDisplayData);
 			}
-
-			IEnumerable<ICell> cellsWithSameNumber = _sudokuBoard.GetFilledCellsWithSameNumber(selectedCell.Number);
-			foreach (ICell cell in cellsWithSameNumber)
-			{
-				_cellPresenters[cell.Row, cell.Column].ShowSameNumber();
-			}
-
-			for (int i = 0; i < _sudokuBoard.CellsArray.GetRowsLength(); i++)
-			{
-				_cellPresenters[i, selectedCell.Column].SelectSameColumn(selectedCell.Number);
-			}
-			for (int i = 0; i < _sudokuBoard.CellsArray.GetColumnsLength(); i++)
-			{
-				_cellPresenters[selectedCell.Row, i].SelectSameColumn(selectedCell.Number);
-			}
-
-			foreach (ICell cell in _sudokuBoard.GetCellsWithSameGroupBox(selectedCell.GroupBox))
-			{
-				_cellPresenters[cell.Row, cell.Column].SelectSameColumn(selectedCell.Number);
-			}
-
-			_cellPresenters[selectedCell.Row, selectedCell.Column].Select();
 		}
 	}
 }

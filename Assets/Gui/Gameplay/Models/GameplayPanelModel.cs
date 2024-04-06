@@ -19,6 +19,7 @@ namespace Gui.Gameplay.Models
 		public bool AutoSolverActive { get; private set; }
 
 		private readonly InputNumbers _inputNumbers;
+		public CellDisplayData[,] CellDisplayDatas;
 
 		public GameplayPanelModel(
 			ApplicationNavigation applicationNavigation,
@@ -40,12 +41,16 @@ namespace Gui.Gameplay.Models
 
 			_inputNumbers = new InputNumbers(9);
 			RefreshAvailableInputNumbers();
+
+			CellDisplayDatas = new CellDisplayData[rules.Rows, rules.Columns];
+			RefreshCellDisplays();
 		}
 
 		public void SelectCell(ICell selectedCell)
 		{
 			SelectedCell = selectedCell;
 
+			RefreshCellDisplays();
 			Refresh?.Invoke();
 		}
 
@@ -63,6 +68,7 @@ namespace Gui.Gameplay.Models
 				_applicationNavigation.OpenMainMenu();
 			}
 
+			RefreshCellDisplays();
 			Refresh?.Invoke();
 		}
 
@@ -72,6 +78,9 @@ namespace Gui.Gameplay.Models
 			bool solved = boardSolver.Solve(SudokuBoard.CellsArray, SudokuBoard.CanPlaceValue,
 				SudokuBoard.IsFullFilled);
 
+			SelectedCell = SudokuBoard.CellsArray[SelectedCell.Row, SelectedCell.Column];
+
+			RefreshCellDisplays();
 			Refresh?.Invoke();
 		}
 
@@ -83,6 +92,7 @@ namespace Gui.Gameplay.Models
 
 			RefreshAvailableInputNumbers();
 
+			RefreshCellDisplays();
 			Refresh?.Invoke();
 		}
 
@@ -96,5 +106,91 @@ namespace Gui.Gameplay.Models
 				}
 			}
 		}
+
+		private void RefreshCellDisplays()
+		{
+			foreach (ICell cell in SudokuBoard.CellsArray)
+			{
+				CellDisplayDatas[cell.Row, cell.Column] = new CellDisplayData(cell.Row, cell.Column, State.DEFAULT, cell.IsFilledGood, cell.Number, cell.IsEmpty); 
+			}
+
+			IEnumerable<ICell> cellsWithSameNumber = SudokuBoard.GetFilledCellsWithSameNumber(SelectedCell.Number);
+			foreach (ICell cell in cellsWithSameNumber)
+			{
+				CellDisplayDatas[cell.Row, cell.Column] = new CellDisplayData(cell.Row, cell.Column, State.SAME_NUMBER, cell.IsFilledGood, cell.Number, cell.IsEmpty); 
+			}
+
+			for (int i = 0; i < SudokuBoard.CellsArray.GetRowsLength(); i++)
+			{
+				ICell cell = SudokuBoard.CellsArray[i, SelectedCell.Column];
+				if (cell.Number == SelectedCell.Number && !cell.IsEmpty)
+				{
+					CellDisplayDatas[i, SelectedCell.Column] = new CellDisplayData(cell.Row, cell.Column, State.SAME_WRONG_NUMBER_IN_ROW_COLUMN_GROUP, cell.IsFilledGood, cell.Number, cell.IsEmpty);
+				}
+				else
+				{
+					CellDisplayDatas[i, SelectedCell.Column] = new CellDisplayData(cell.Row, cell.Column, State.SAME_ROW_COLUMN_GROUP, cell.IsFilledGood, cell.Number, cell.IsEmpty);
+				}
+			}
+
+			for (int i = 0; i < SudokuBoard.CellsArray.GetColumnsLength(); i++)
+			{
+				ICell cell = SudokuBoard.CellsArray[SelectedCell.Row, i];
+				if (cell.Number == SelectedCell.Number && !cell.IsEmpty)
+				{
+					CellDisplayDatas[SelectedCell.Row, i] = new CellDisplayData(cell.Row, cell.Column, State.SAME_WRONG_NUMBER_IN_ROW_COLUMN_GROUP, cell.IsFilledGood, cell.Number, cell.IsEmpty);
+				}
+				else
+				{
+					CellDisplayDatas[SelectedCell.Row, i] = new CellDisplayData(cell.Row, cell.Column, State.SAME_ROW_COLUMN_GROUP, cell.IsFilledGood, cell.Number, cell.IsEmpty);
+				}
+			}
+
+			foreach (ICell cell in SudokuBoard.GetCellsWithSameGroupBox(SelectedCell.GroupBox))
+			{
+				if (cell.Number == SelectedCell.Number && !cell.IsEmpty)
+				{
+					CellDisplayDatas[cell.Row, cell.Column] = new CellDisplayData(cell.Row, cell.Column, State.SAME_WRONG_NUMBER_IN_ROW_COLUMN_GROUP, cell.IsFilledGood, cell.Number, cell.IsEmpty);
+				}
+				else
+				{
+					CellDisplayDatas[cell.Row, cell.Column] = new CellDisplayData(cell.Row, cell.Column, State.SAME_ROW_COLUMN_GROUP, cell.IsFilledGood, cell.Number, cell.IsEmpty);
+				}
+			}
+
+			CellDisplayDatas[SelectedCell.Row, SelectedCell.Column] = new CellDisplayData(SelectedCell.Row, SelectedCell.Column, State.SELECTED, SelectedCell.IsFilledGood, SelectedCell.Number, SelectedCell.IsEmpty);
+		}
+	}
+}
+
+public enum State
+{
+	DEFAULT,
+	SELECTED,
+	SAME_NUMBER,
+	SAME_ROW_COLUMN_GROUP,
+	SAME_WRONG_NUMBER_IN_ROW_COLUMN_GROUP
+}
+
+public readonly struct CellDisplayData
+{
+	public readonly int Row;
+	public readonly int Column;
+	public readonly State State;
+	public readonly bool IsFilledGood;
+	public string Num => _isEmpty ? string.Empty : _number.ToString();
+
+	private readonly int _number;
+	private readonly bool _isEmpty;
+
+	public CellDisplayData(int row, int column, State state, bool isFilledGood, int number, bool isEmpty)
+	{
+		Row = row;
+		Column = column;
+		State = state;
+		IsFilledGood = isFilledGood;
+
+		_number = number;
+		_isEmpty = isEmpty;
 	}
 }
