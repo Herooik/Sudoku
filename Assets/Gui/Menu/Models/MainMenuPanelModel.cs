@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Root;
 using UnityEngine;
 
 namespace Gui.Menu.Models
@@ -13,13 +12,16 @@ namespace Gui.Menu.Models
 		public List<string> Difficulties => _difficulties.Select(sudokuDifficulty => sudokuDifficulty.ToString()).ToList();
 
 		private readonly ApplicationNavigation _applicationNavigation;
+		private readonly SelectedGameSettings _selectedGameSettings;
+
 		private readonly List<SudokuDifficulty> _difficulties;
 
-		private SudokuDifficulty _selectedDifficulty;
-
-		public MainMenuPanelModel(ApplicationNavigation applicationNavigation)
+		public MainMenuPanelModel(
+			ApplicationNavigation applicationNavigation,
+			SelectedGameSettings selectedGameSettings)
 		{
 			_applicationNavigation = applicationNavigation;
+			_selectedGameSettings = selectedGameSettings;
 
 			_difficulties = new List<SudokuDifficulty>()
 			{
@@ -30,17 +32,17 @@ namespace Gui.Menu.Models
 				SudokuDifficulty.MASTER,
 			};
 
-			_selectedDifficulty = _difficulties[0];
+			_selectedGameSettings.Difficulty = _difficulties[0]; 
 		}
 
 		public void StartNewGame()
 		{
-			_applicationNavigation.OpenGameplay(_selectedDifficulty);
+			_applicationNavigation.OpenGameplay();
 		}
 
 		public void ChooseDifficulty(int diffOption)
 		{
-			_selectedDifficulty = _difficulties[diffOption];
+			_selectedGameSettings.Difficulty = _difficulties[diffOption];
 		}
 	}
 }

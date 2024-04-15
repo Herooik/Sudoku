@@ -1,5 +1,6 @@
 ﻿using Gui.Gameplay.Models;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace Gui.Gameplay.Presenters
@@ -7,7 +8,7 @@ namespace Gui.Gameplay.Presenters
 	public class GameplayPanelPresenter : MonoBehaviour
 	{
 		[SerializeField] private BoardPanelPresenter _boardPanelPresenter;
-		[SerializeField] private PlayerNumberPlacementPresenter _playerNumberPlacementPresenter;
+		[SerializeField] private InputNumbersPresenter _inputNumbersPresenter;
 		[SerializeField] private Button _autoSolveButton;
 		[SerializeField] private Button _cleanButton;
 
@@ -18,7 +19,7 @@ namespace Gui.Gameplay.Presenters
 			_model = model;
 
 			_boardPanelPresenter.Initialize(_model.SelectCell, _model.CellDisplayDataList);
-			_playerNumberPlacementPresenter.Initialize(_model.AllNumbers, _model.PlaceNumber);
+			_inputNumbersPresenter.Initialize(_model.AllNumbers, _model.PlaceNumber);
 			_autoSolveButton.onClick.AddListener(_model.AutoSolveBoard);
 			_cleanButton.onClick.AddListener(_model.CleanCell);
 
@@ -34,7 +35,7 @@ namespace Gui.Gameplay.Presenters
 		private void OnRefresh()
 		{
 			_boardPanelPresenter.Refresh(_model.CellDisplayDataList);
-			_playerNumberPlacementPresenter.Refresh(_model.AvailableNumbers);
+			_inputNumbersPresenter.Refresh(_model.AvailableNumbers);
 		}
 	}
 }

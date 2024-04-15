@@ -321,7 +321,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _boardPanelPresenter: {fileID: 4398707268394113763}
-  _playerNumberPlacementPresenter: {fileID: 8474078230108700577}
+  _inputNumbersPresenter: {fileID: 8474078230108700577}
   _autoSolveButton: {fileID: 1128064923816705106}
   _cleanButton: {fileID: 3149188690348098526}
 --- !u!1 &2223260721261084565

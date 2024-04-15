@@ -157,5 +157,16 @@ namespace Board
 			int count = CellsArray.Cast<ICell>().Count(cell => cell.IsFilledGood);
 			return count == CellsArray.Length;
 		}
+
+		public ICell GetCell(int selectedCellIndex)
+		{
+			foreach (ICell cell in CellsArray)
+			{
+				if (cell.Index == selectedCellIndex)
+					return cell;
+			}
+
+			return null;
+		}
 	}
 }

@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Gui.Gameplay.Presenters
 {
-	public class PlayerNumberPlacementPresenter : MonoBehaviour
+	public class InputNumbersPresenter : MonoBehaviour
 	{
 		[SerializeField] private PlacementInputNumber _placementInputNumber;
 

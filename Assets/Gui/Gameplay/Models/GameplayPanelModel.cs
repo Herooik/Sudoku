@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Board;
 using Gui.ScriptableObjects;
-using Root;
 
 namespace Gui.Gameplay.Models
 {
@@ -20,21 +19,20 @@ namespace Gui.Gameplay.Models
 		private readonly InputNumbers _inputNumbers;
 		private readonly List<CellDisplayData> _cellDisplayDataList;
 
-		private CellDisplayData _selectedCell => _cellDisplayDataList[_selectedCellIndex];
+		private ICell _selectedCell => SudokuBoard.GetCell(_selectedCellIndex);
 		private int _selectedCellIndex;
 
 		public GameplayPanelModel(
 			ApplicationNavigation applicationNavigation,
 			DifficultyRulesSettings difficultyRulesSettings,
-			SudokuType sudokuType,
-			SudokuDifficulty selectedDifficulty)
+			SelectedGameSettings selectedGameSettings)
 		{
 			_applicationNavigation = applicationNavigation;
 
-			DisplayGridConfig rules = SudokuGridRules.GetRules(sudokuType);
+			DisplayGridConfig rules = SudokuGridRules.GetRules(selectedGameSettings.SudokuType);
 			IBoardSolver boardSolver = new BoardSolver();
 			SudokuBoard = new SudokuBoard(rules.Rows, rules.Columns, boardSolver);
-			SudokuBoard.GenerateNewBoard(difficultyRulesSettings.GetCellsToRemove(sudokuType, selectedDifficulty));
+			SudokuBoard.GenerateNewBoard(difficultyRulesSettings.GetCellsToRemove(selectedGameSettings.SudokuType, selectedGameSettings.Difficulty));
 
 			_cellDisplayDataList = new List<CellDisplayData>(new CellDisplayData[SudokuBoard.CellsArray.Length]);
 
