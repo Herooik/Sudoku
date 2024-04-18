@@ -23,29 +23,37 @@ namespace Gui
 
 		[SerializeField] private DifficultyRulesSettings _difficultyRulesSettings;
 
-		private SelectedGameSettings _selectedGameSettings = new();
+		private readonly SelectedGameSettings _selectedGameSettings = new();
 
-		private MainMenuPanelModel _menuPanelModel;
-		private GameplayPanelModel _gameplayModel;
+		private GameObject _currentPanel;
 
 		private void Start()
 		{
-			_menuPanelModel = new MainMenuPanelModel(this, _selectedGameSettings);
-			_gameplayModel = new GameplayPanelModel(this, _difficultyRulesSettings, _selectedGameSettings);
-
 			OpenMainMenu();
 		}
 
 		public void OpenMainMenu()
 		{
+			if (_currentPanel != null)
+				Destroy(_currentPanel);
+
+			MainMenuPanelModel model = new MainMenuPanelModel(this, _selectedGameSettings);
 			MainMenuPanelPresenter panel = Instantiate(_mainMenuPanelPresenter, _panelHolder);
-			panel.GetComponent<MainMenuPanelPresenter>().Bind(_menuPanelModel);
+			panel.GetComponent<MainMenuPanelPresenter>().Bind(model);
+
+			_currentPanel = panel.gameObject;
 		}
 
 		public void OpenGameplay()
 		{
+			if (_currentPanel != null)
+				Destroy(_currentPanel);
+
+			GameplayPanelModel model = new GameplayPanelModel(this, _difficultyRulesSettings, _selectedGameSettings);
 			GameplayPanelPresenter panel = Instantiate(_gameplayPanelPresenter, _panelHolder);
-			panel.GetComponent<GameplayPanelPresenter>().Bind(_gameplayModel);
+			panel.GetComponent<GameplayPanelPresenter>().Bind(model);
+
+			_currentPanel = panel.gameObject;
 		}
 	}
 }

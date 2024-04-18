@@ -28,6 +28,7 @@ namespace Board
 			IBoardGenerator boardGenerator = new RandomBoardGenerator(_rows, _columns, _boardSolver, CanPlaceValue, IsFullFilled);
 			boardGenerator.Generate(CellsArray);
 
+			// todo move to other place
 			RemoveRandomCellsHandler.RemoveRandomCellsFromBoard(CellsArray, cellsToRemove, SetCellAsEmpty);
 		}
 
@@ -152,7 +153,7 @@ namespace Board
 			CellsArray[cell.Row, cell.Column] = new CellForUser(temp.Index, temp.GroupBox, temp.Row, temp.Column, 0, temp.Number);
 		}
 
-		public bool IsGameEnd()
+		public bool IsAllCellsFilledGood()
 		{
 			int count = CellsArray.Cast<ICell>().Count(cell => cell.IsFilledGood);
 			return count == CellsArray.Length;

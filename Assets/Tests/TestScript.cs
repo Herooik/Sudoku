@@ -8,7 +8,7 @@ namespace Tests
 	public class TestScript
 	{
 		[Test]
-		public void GenerateSolvableGrid()
+		public void Is_Generated_Grid_Solvable()
 		{
 			int rows = 9;
 			int columns = 9;
@@ -115,6 +115,28 @@ namespace Tests
 			}
 
 			Assert.That(inputNumbers.AvailableNumbers.Count(), Is.EqualTo(1));
+		}
+
+		[Test]
+		public void Increase_Mistake()
+		{
+			MistakeHandler mistakeHandler = new MistakeHandler(0, 3);
+
+			mistakeHandler.Increase();
+
+			Assert.That(mistakeHandler.Current, Is.EqualTo(1));
+		}
+		
+		[Test]
+		public void Increase_Mistake_End_Game()
+		{
+			MistakeHandler mistakeHandler = new MistakeHandler(0, 3);
+
+			mistakeHandler.Increase();
+			mistakeHandler.Increase();
+			mistakeHandler.Increase();
+
+			Assert.That(mistakeHandler.MaxedOut, Is.True);
 		}
 	}
 }

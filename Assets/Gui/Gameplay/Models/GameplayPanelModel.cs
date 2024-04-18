@@ -7,19 +7,22 @@ namespace Gui.Gameplay.Models
 {
 	public class GameplayPanelModel
 	{
-		private readonly ApplicationNavigation _applicationNavigation;
 		public event Action Refresh;
-
-		public readonly SudokuBoard SudokuBoard;
 
 		public IReadOnlyList<int> AllNumbers => _inputNumbers.AllNumbers;
 		public IEnumerable<int> AvailableNumbers => _inputNumbers.AvailableNumbers;
 		public IReadOnlyList<CellDisplayData> CellDisplayDataList => _cellDisplayDataList;
+		public SudokuDifficulty Difficulty { get; }
+		public int CurrentMistakes => _mistakeHandler.Current;
+		public int MaxMistakes => _mistakeHandler.Max;
 
-		private readonly InputNumbers _inputNumbers;
+		private readonly ApplicationNavigation _applicationNavigation;
+		private readonly SudokuBoard _sudokuBoard;
 		private readonly List<CellDisplayData> _cellDisplayDataList;
+		private readonly InputNumbers _inputNumbers;
+		private readonly MistakeHandler _mistakeHandler;
 
-		private ICell _selectedCell => SudokuBoard.GetCell(_selectedCellIndex);
+		private ICell _selectedCell => _sudokuBoard.GetCell(_selectedCellIndex);
 		private int _selectedCellIndex;
 
 		public GameplayPanelModel(
@@ -31,20 +34,28 @@ namespace Gui.Gameplay.Models
 
 			DisplayGridConfig rules = SudokuGridRules.GetRules(selectedGameSettings.SudokuType);
 			IBoardSolver boardSolver = new BoardSolver();
-			SudokuBoard = new SudokuBoard(rules.Rows, rules.Columns, boardSolver);
-			SudokuBoard.GenerateNewBoard(difficultyRulesSettings.GetCellsToRemove(selectedGameSettings.SudokuType, selectedGameSettings.Difficulty));
+			_sudokuBoard = new SudokuBoard(rules.Rows, rules.Columns, boardSolver);
+			_sudokuBoard.GenerateNewBoard(difficultyRulesSettings.GetCellsToRemove(selectedGameSettings.SudokuType, selectedGameSettings.Difficulty));
 
-			_cellDisplayDataList = new List<CellDisplayData>(new CellDisplayData[SudokuBoard.CellsArray.Length]);
+			_cellDisplayDataList = new List<CellDisplayData>(new CellDisplayData[_sudokuBoard.CellsArray.Length]);
 
 			Random random = new();
 			int row = random.Next(0, rules.Rows);
 			int column = random.Next(0, rules.Columns);
-			_selectedCellIndex = SudokuBoard.CellsArray[row, column].Index;
+			_selectedCellIndex = _sudokuBoard.CellsArray[row, column].Index;
 
-			_inputNumbers = new InputNumbers(9);
+			_inputNumbers = new InputNumbers(_sudokuBoard.CellsArray.GetRowsLength());
+			_mistakeHandler = new MistakeHandler(0, 3); // todo: move max mistakes to global settings
+
+			Difficulty = selectedGameSettings.Difficulty;
 
 			RefreshAvailableInputNumbers();
 			RefreshCellDisplays();
+		}
+
+		public void ReturnToMenu()
+		{
+			_applicationNavigation.OpenMainMenu();
 		}
 
 		public void SelectCell(int selectedCellIndex)
@@ -59,14 +70,18 @@ namespace Gui.Gameplay.Models
 		{
 			if (_selectedCell.Number == number)
 			{
-				SudokuBoard.CleanCell(_selectedCell.Row, _selectedCell.Column);
-			}
-			else
-			{
-				SudokuBoard.PlaceValue(number, _selectedCell.Row, _selectedCell.Column);
+				CleanCell();
+				return;
 			}
 
-			bool isGameEnd = SudokuBoard.IsGameEnd();
+			_sudokuBoard.PlaceValue(number, _selectedCell.Row, _selectedCell.Column);
+
+			if (!_selectedCell.IsFilledGood)
+			{
+				_mistakeHandler.Increase();
+			}
+
+			bool isGameEnd = _sudokuBoard.IsAllCellsFilledGood() || _mistakeHandler.MaxedOut;
 			if (isGameEnd)
 			{
 				_applicationNavigation.OpenMainMenu();
@@ -80,7 +95,7 @@ namespace Gui.Gameplay.Models
 		public void AutoSolveBoard()
 		{
 			IBoardSolver boardSolver = new ExistedBoardSolverTEMP();
-			boardSolver.Solve(SudokuBoard.CellsArray, SudokuBoard.CanPlaceValue, SudokuBoard.IsFullFilled);
+			boardSolver.Solve(_sudokuBoard.CellsArray, _sudokuBoard.CanPlaceValue, _sudokuBoard.IsFullFilled);
 
 			RefreshAvailableInputNumbers();
 			RefreshCellDisplays();
@@ -89,7 +104,7 @@ namespace Gui.Gameplay.Models
 
 		public void CleanCell()
 		{
-			SudokuBoard.CleanCell(_selectedCell.Row, _selectedCell.Column);
+			_sudokuBoard.CleanCell(_selectedCell.Row, _selectedCell.Column);
 
 			RefreshAvailableInputNumbers();
 			RefreshCellDisplays();
@@ -98,9 +113,9 @@ namespace Gui.Gameplay.Models
 
 		private void RefreshAvailableInputNumbers()
 		{
-			for (int i = 1; i <= SudokuBoard.CellsArray.GetRowsLength(); i++)
+			for (int i = 1; i <= _sudokuBoard.CellsArray.GetRowsLength(); i++)
 			{
-				if (SudokuBoard.IsValueReachMaxOutUsed(i))
+				if (_sudokuBoard.IsValueReachMaxOutUsed(i))
 				{
 					_inputNumbers.RemoveNumber(i);
 				}
@@ -113,7 +128,7 @@ namespace Gui.Gameplay.Models
 
 		private void RefreshCellDisplays()
 		{
-			foreach (ICell cell in SudokuBoard.CellsArray)
+			foreach (ICell cell in _sudokuBoard.CellsArray)
 			{
 				State state = State.DEFAULT;
 

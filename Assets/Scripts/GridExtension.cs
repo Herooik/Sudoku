@@ -5,6 +5,7 @@ public static class GridExtension
 		return cells.GetLength(0);
 	}
 
+	//todo: consider remove this and base only on rows count because in sudoku there is always the same amount rows == columns
 	public static int GetColumnsLength<T>(this T[,] cells)
 	{
 		return cells.GetLength(1);
