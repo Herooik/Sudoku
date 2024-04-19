@@ -8,10 +8,10 @@ public class InputNumbers
 	private readonly List<int> _availableNumbers;
 	private readonly List<int> _allNumbers;
 
-	public InputNumbers(int boardMaxColumns)
+	public InputNumbers(int maxRows)
 	{
 		List<int> allNumbers = new();
-		for (int i = 1; i <= boardMaxColumns; i++)
+		for (int i = 1; i <= maxRows; i++)
 		{
 			allNumbers.Add(i);
 		}

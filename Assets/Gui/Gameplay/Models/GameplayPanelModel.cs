@@ -9,6 +9,7 @@ namespace Gui.Gameplay.Models
 	{
 		public event Action Refresh;
 
+		public int Rows => _sudokuBoard.CellsArray.GetRowsLength();
 		public IReadOnlyList<int> AllNumbers => _inputNumbers.AllNumbers;
 		public IEnumerable<int> AvailableNumbers => _inputNumbers.AvailableNumbers;
 		public IReadOnlyList<CellDisplayData> CellDisplayDataList => _cellDisplayDataList;
@@ -17,6 +18,7 @@ namespace Gui.Gameplay.Models
 		public int MaxMistakes => _mistakeHandler.Max;
 
 		private readonly ApplicationNavigation _applicationNavigation;
+		private readonly SudokuGridConfig _sudokuGridConfig;
 		private readonly SudokuBoard _sudokuBoard;
 		private readonly List<CellDisplayData> _cellDisplayDataList;
 		private readonly InputNumbers _inputNumbers;
@@ -31,18 +33,16 @@ namespace Gui.Gameplay.Models
 			SelectedGameSettings selectedGameSettings)
 		{
 			_applicationNavigation = applicationNavigation;
+			_sudokuGridConfig = SudokuConfig.GetConfig(selectedGameSettings.SudokuType);
 
-			DisplayGridConfig rules = SudokuGridRules.GetRules(selectedGameSettings.SudokuType);
-			IBoardSolver boardSolver = new BoardSolver();
-			_sudokuBoard = new SudokuBoard(rules.Rows, rules.Columns, boardSolver);
+			IBoardSolver boardSolver = new BoardSolver(_sudokuGridConfig);
+			_sudokuBoard = new SudokuBoard(_sudokuGridConfig, boardSolver);
 			_sudokuBoard.GenerateNewBoard(difficultyRulesSettings.GetCellsToRemove(selectedGameSettings.SudokuType, selectedGameSettings.Difficulty));
 
 			_cellDisplayDataList = new List<CellDisplayData>(new CellDisplayData[_sudokuBoard.CellsArray.Length]);
 
 			Random random = new();
-			int row = random.Next(0, rules.Rows);
-			int column = random.Next(0, rules.Columns);
-			_selectedCellIndex = _sudokuBoard.CellsArray[row, column].Index;
+			_selectedCellIndex = _sudokuBoard.CellsArray[random.Next(0, _sudokuGridConfig.Rows), random.Next(0, _sudokuGridConfig.Rows)].Index;
 
 			_inputNumbers = new InputNumbers(_sudokuBoard.CellsArray.GetRowsLength());
 			_mistakeHandler = new MistakeHandler(0, 3); // todo: move max mistakes to global settings
@@ -94,7 +94,7 @@ namespace Gui.Gameplay.Models
 
 		public void AutoSolveBoard()
 		{
-			IBoardSolver boardSolver = new ExistedBoardSolverTEMP();
+			IBoardSolver boardSolver = new ExistedBoardSolverTEMP(_sudokuGridConfig);
 			boardSolver.Solve(_sudokuBoard.CellsArray, _sudokuBoard.CanPlaceValue, _sudokuBoard.IsFullFilled);
 
 			RefreshAvailableInputNumbers();

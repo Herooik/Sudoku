@@ -13,14 +13,14 @@ namespace Gui.Gameplay.Presenters
 
 		private ICellPresenter[,] _cellPresenters;
 
-		public void Initialize(Action<int> onSelectCell, IReadOnlyList<CellDisplayData> cellDisplays)
+		public void Initialize(int rows, Action<int> onSelectCell, IReadOnlyList<CellDisplayData> cellDisplays)
 		{
 			// todo instantiate groupboxes and then cells inside them
 			// we can control then groupbox to check if there is a a value etc.
 
-			float width = _holder.rect.width / 9;
+			float width = _holder.rect.width / rows;
 
-			_cellPresenters = new ICellPresenter[9, 9];
+			_cellPresenters = new ICellPresenter[rows, rows];
 
 			for (int index = 0; index < cellDisplays.Count; index++)
 			{

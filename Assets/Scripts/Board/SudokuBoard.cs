@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using BoardGenerator;
 using UnityEngine;
@@ -10,22 +9,20 @@ namespace Board
 	{
 		public readonly ICell[,] CellsArray;
 
-		private readonly int _rows;
-		private readonly int _columns;
 		private readonly IBoardSolver _boardSolver;
+		private readonly SudokuGridConfig _sudokuGridConfig;
 
-		public SudokuBoard(int rows, int columns, IBoardSolver boardSolver)
+		public SudokuBoard(SudokuGridConfig sudokuGridConfig, IBoardSolver boardSolver)
 		{
-			_rows = rows;
-			_columns = columns;
+			_sudokuGridConfig = sudokuGridConfig;
 			_boardSolver = boardSolver;
 
-			CellsArray = new ICell[rows, columns];
+			CellsArray = new ICell[sudokuGridConfig.Rows, sudokuGridConfig.Rows];
 		}
 
 		public void GenerateNewBoard(int cellsToRemove)
 		{
-			IBoardGenerator boardGenerator = new RandomBoardGenerator(_rows, _columns, _boardSolver, CanPlaceValue, IsFullFilled);
+			IBoardGenerator boardGenerator = new RandomBoardGenerator(_sudokuGridConfig, _boardSolver, CanPlaceValue, IsFullFilled);
 			boardGenerator.Generate(CellsArray);
 
 			// todo move to other place
@@ -52,7 +49,7 @@ namespace Board
 					count++;
 				}
 			}
-			return count == CellsArray.GetColumnsLength();
+			return count == CellsArray.GetRowsLength();
 		}
 
 		public void PlaceValue(int value, int cellRow, int cellColumn)
@@ -101,7 +98,7 @@ namespace Board
 					return false;
 				}
 
-				if (!subGrids.Add((cell.Row / 3, cell.Column / 3, cell.Number)))
+				if (!subGrids.Add((cell.Row / _sudokuGridConfig.SubGridRows, cell.Column / _sudokuGridConfig.SubGridColumns, cell.Number)))
 				{
 					return false;
 				}
@@ -117,34 +114,12 @@ namespace Board
 				return false;
 			}
 
-			if (!subGrids.Add((cellToPlace.Row / 3, cellToPlace.Column / 3, valueToPlace)))
+			if (!subGrids.Add((cellToPlace.Row / _sudokuGridConfig.SubGridRows, cellToPlace.Column / _sudokuGridConfig.SubGridColumns, valueToPlace)))
 			{
 				return false;
 			}
 
 			return true;
-		}
-
-		public IEnumerable<ICell> GetFilledCellsWithSameNumber(int number)
-		{
-			List<ICell> cells = new();
-			foreach (ICell cell in CellsArray)
-			{
-				if (!cell.IsEmpty && cell.Number == number)
-						cells.Add(cell);
-			}
-			return cells;
-		}
-		
-		public IEnumerable<ICell> GetCellsWithSameGroupBox(int groupBox)
-		{
-			List<ICell> cells = new();
-			foreach (ICell cell in CellsArray)
-			{
-				if (cell.GroupBox == groupBox)
-					cells.Add(cell);
-			}
-			return cells;
 		}
 
 		public void SetCellAsEmpty(ICell cell)
@@ -166,7 +141,6 @@ namespace Board
 				if (cell.Index == selectedCellIndex)
 					return cell;
 			}
-
 			return null;
 		}
 	}

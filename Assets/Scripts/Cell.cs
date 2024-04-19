@@ -12,11 +12,11 @@
 
 public class SolvedByGeneratorCell : ICell
 {
-	public int Index { get; private set; }
-	public int GroupBox { get; private set; }
-	public int Row { get; private set; }
-	public int Column { get; private set; }
-	public int Number { get; private set; }
+	public int Index { get; }
+	public int GroupBox { get; }
+	public int Row { get; }
+	public int Column { get; }
+	public int Number { get; }
 	public bool IsFilledGood => true; 
 
 	public SolvedByGeneratorCell(int index, int groupBox, int row, int column, int number)
@@ -31,10 +31,10 @@ public class SolvedByGeneratorCell : ICell
 
 public class CellForUser : ICell
 {
-	public int Index { get; private set; }
-	public int GroupBox { get; private set; }
-	public int Row { get; private set; }
-	public int Column { get; private set; }
+	public int Index { get; }
+	public int GroupBox { get; }
+	public int Row { get; }
+	public int Column { get; }
 	public int Number { get; private set; }
 	public bool IsFilledGood => Number == _expectedNumber;
 

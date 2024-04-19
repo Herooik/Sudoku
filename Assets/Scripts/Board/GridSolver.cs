@@ -6,21 +6,26 @@ namespace Board
 {
 	public class BoardSolver : IBoardSolver
 	{
+		private readonly SudokuGridConfig _sudokuGridConfig;
 		private readonly IEnumerable<int> _numberList;
 
-		public BoardSolver()
+		public BoardSolver(SudokuGridConfig sudokuGridConfig)
 		{
+			_sudokuGridConfig = sudokuGridConfig;
+
 			RandomNumberListGenerator numberListGenerator = new RandomNumberListGenerator();
-			_numberList = numberListGenerator.GenerateNumbers(9);
+			_numberList = numberListGenerator.GenerateNumbers(_sudokuGridConfig.Rows);
 		}
 
 		public bool Solve(ICell[,] cells, Func<int, ICell, bool> canPlaceValue, Func<bool> isBoardFullFilled)
 		{
-			int rows = cells.GetRowsLength();
-			int columns = cells.GetColumnsLength();
+			int rows = _sudokuGridConfig.Rows;
+			int subgridRows = _sudokuGridConfig.SubGridRows;
+			int subgridColumns = _sudokuGridConfig.SubGridColumns;
+
 			for (int row = 0; row < rows; row++)
 			{
-				for (int column = 0; column < columns; column++)
+				for (int column = 0; column < rows; column++)
 				{
 					ICell cell = cells[row, column];
 					if (cell.IsEmpty)
@@ -29,7 +34,7 @@ namespace Board
 						{
 							if (canPlaceValue.Invoke(number, cell))
 							{
-								int groupBox = (row / 3) + 3 * (column / 3) + 1;
+								int groupBox = (row / subgridRows) + subgridColumns * (column / subgridColumns) + 1;
 
 								cells[row, column] = new SolvedByGeneratorCell(row * rows + column, groupBox, row, column, number);
 
@@ -58,21 +63,26 @@ namespace Board
 
 	public class ExistedBoardSolverTEMP : IBoardSolver
 	{
+		private readonly SudokuGridConfig _sudokuGridConfig;
 		private readonly IEnumerable<int> _numberList;
 
-		public ExistedBoardSolverTEMP()
+		public ExistedBoardSolverTEMP(SudokuGridConfig sudokuGridConfig)
 		{
+			_sudokuGridConfig = sudokuGridConfig;
+
 			RandomNumberListGenerator numberListGenerator = new RandomNumberListGenerator();
-			_numberList = numberListGenerator.GenerateNumbers(9);
+			_numberList = numberListGenerator.GenerateNumbers(_sudokuGridConfig.Rows);
 		}
 
 		public bool Solve(ICell[,] cells, Func<int, ICell, bool> canPlaceValue, Func<bool> isBoardFullFilled)
 		{
-			int rows = cells.GetRowsLength();
-			int columns = cells.GetColumnsLength();
+			int rows = _sudokuGridConfig.Rows;
+			int subgridRows = _sudokuGridConfig.SubGridRows;
+			int subgridColumns = _sudokuGridConfig.SubGridColumns;
+
 			for (int row = 0; row < rows; row++)
 			{
-				for (int column = 0; column < columns; column++)
+				for (int column = 0; column < rows; column++)
 				{
 					ICell cell = cells[row, column];
 					if (cell.IsEmpty)
@@ -81,7 +91,7 @@ namespace Board
 						{
 							if (canPlaceValue.Invoke(number, cell))
 							{
-								int groupBox = (row / 3) + 3 * (column / 3) + 1;
+								int groupBox = (row / subgridRows) + subgridColumns * (column / subgridColumns) + 1;
 
 								cells[row, column] = new CellForUser(row * rows + column, groupBox, row, column, number, number);
 

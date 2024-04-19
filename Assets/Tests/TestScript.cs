@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using Board;
 using BoardGenerator;
@@ -7,40 +8,48 @@ namespace Tests
 {
 	public class TestScript
 	{
-		[Test]
-		public void Is_Generated_Grid_Solvable()
+		[TestCaseSource(nameof(SudokuTypes))]
+		public void Is_Generated_Grid_Solvable(SudokuType sudokuType)
 		{
-			int rows = 9;
-			int columns = 9;
-			IBoardSolver boardSolver = new BoardSolver();
-			SudokuBoard sudokuBoard = new SudokuBoard(rows, columns, boardSolver);
+			SudokuGridConfig sudokuGridConfig = SudokuConfig.GetConfig(sudokuType);
+			IBoardSolver boardSolver = new BoardSolver(sudokuGridConfig);
+			SudokuBoard sudokuBoard = new SudokuBoard(sudokuGridConfig, boardSolver);
 
 			sudokuBoard.GenerateNewBoard(10);
 			bool solved = boardSolver.Solve(sudokuBoard.CellsArray, sudokuBoard.CanPlaceValue, sudokuBoard.IsFullFilled);
-	
+
 			Assert.That(solved, Is.True);
 		}
 
-		[Test]
-		public void Is_Duplicate_Value_In_Row()
+		private static IEnumerable<TestCaseData> SudokuTypes()
 		{
-			int rows = 9;
-			int columns = 9;
-			IBoardSolver boardSolver = new BoardSolver();
-			SudokuBoard sudokuBoard = new SudokuBoard(rows, columns, boardSolver);
-			IBoardGenerator boardGenerator = new EmptyBoardGenerator(sudokuBoard.CellsArray.GetRowsLength(), sudokuBoard.CellsArray.GetColumnsLength());
+			yield return new TestCaseData(SudokuType.FOUR_BY_FOUR);
+			yield return new TestCaseData(SudokuType.SIX_BY_SIX);
+			yield return new TestCaseData(SudokuType.EIGHT_BY_EIGHT);
+			yield return new TestCaseData(SudokuType.NINE_BY_NINE);
+			// yield return new TestCaseData(SudokuType.TEN_BY_TEN);
+			// yield return new TestCaseData(SudokuType.TWELVE_BY_TWELVE);
+			// yield return new TestCaseData(SudokuType.SIXTEEN_BY_SIXTEEN);
+		}
+
+		[TestCaseSource(nameof(SudokuTypes))]
+		public void Is_Duplicate_Value_In_Row(SudokuType sudokuType)
+		{
+			SudokuGridConfig sudokuGridConfig = SudokuConfig.GetConfig(sudokuType);
+			IBoardSolver boardSolver = new BoardSolver(sudokuGridConfig);
+			SudokuBoard sudokuBoard = new SudokuBoard(sudokuGridConfig, boardSolver);
+			IBoardGenerator boardGenerator = new EmptyBoardGenerator(sudokuBoard.CellsArray.GetRowsLength());
 
 			boardGenerator.Generate(sudokuBoard.CellsArray);
 		}
 
-		[Test]
-		public void Place_Valid_Value()
+		[TestCaseSource(nameof(SudokuTypes))]
+		public void Place_Valid_Value(SudokuType sudokuType)
 		{
-			int rows = 9;
-			int columns = 9;
-			IBoardSolver boardSolver = new BoardSolver();
-			SudokuBoard sudokuBoard = new SudokuBoard(rows, columns, boardSolver);
-			IBoardGenerator boardGenerator = new EmptyBoardGenerator(sudokuBoard.CellsArray.GetRowsLength(), sudokuBoard.CellsArray.GetColumnsLength());
+			SudokuGridConfig sudokuGridConfig = SudokuConfig.GetConfig(sudokuType);
+			IBoardSolver boardSolver = new BoardSolver(sudokuGridConfig);
+			SudokuBoard sudokuBoard = new SudokuBoard(sudokuGridConfig, boardSolver);
+			IBoardGenerator boardGenerator = new EmptyBoardGenerator(sudokuBoard.CellsArray.GetRowsLength());
 
 			boardGenerator.Generate(sudokuBoard.CellsArray);
 
@@ -52,14 +61,13 @@ namespace Tests
 		}
 
 		
-		[Test]
-		public void Place_Invalid_Value()
+		[TestCaseSource(nameof(SudokuTypes))]
+		public void Place_Invalid_Value(SudokuType sudokuType)
 		{
-			int rows = 9;
-			int columns = 9;
-			IBoardSolver boardSolver = new BoardSolver();
-			SudokuBoard sudokuBoard = new SudokuBoard(rows, columns, boardSolver);
-			IBoardGenerator boardGenerator = new EmptyBoardGenerator(sudokuBoard.CellsArray.GetRowsLength(), sudokuBoard.CellsArray.GetColumnsLength());
+			SudokuGridConfig sudokuGridConfig = SudokuConfig.GetConfig(sudokuType);
+			IBoardSolver boardSolver = new BoardSolver(sudokuGridConfig);
+			SudokuBoard sudokuBoard = new SudokuBoard(sudokuGridConfig, boardSolver);
+			IBoardGenerator boardGenerator = new EmptyBoardGenerator(sudokuBoard.CellsArray.GetRowsLength());
 
 			boardGenerator.Generate(sudokuBoard.CellsArray);
 
@@ -70,30 +78,28 @@ namespace Tests
 			Assert.That(cell.IsFilledGood, Is.False);
 		}
 
-		[Test]
-		public void Are_Input_Numbers_Correct_On_Init()
+		[TestCaseSource(nameof(SudokuTypes))]
+		public void Are_Input_Numbers_Correct_On_Init(SudokuType sudokuType)
 		{
-			int rows = 9;
-			int columns = 9;
-			IBoardSolver boardSolver = new BoardSolver();
-			SudokuBoard sudokuBoard = new SudokuBoard(rows, columns, boardSolver);
-			IBoardGenerator boardGenerator = new EmptyBoardGenerator(sudokuBoard.CellsArray.GetRowsLength(), sudokuBoard.CellsArray.GetColumnsLength());
-			InputNumbers inputNumbers = new InputNumbers(9);
+			SudokuGridConfig sudokuGridConfig = SudokuConfig.GetConfig(sudokuType);
+			IBoardSolver boardSolver = new BoardSolver(sudokuGridConfig);
+			SudokuBoard sudokuBoard = new SudokuBoard(sudokuGridConfig, boardSolver);
+			IBoardGenerator boardGenerator = new EmptyBoardGenerator(sudokuBoard.CellsArray.GetRowsLength());
+			InputNumbers inputNumbers = new InputNumbers(sudokuBoard.CellsArray.GetRowsLength());
 
 			boardGenerator.Generate(sudokuBoard.CellsArray);
 
 			Assert.That(inputNumbers.AvailableNumbers.Count, Is.EqualTo(sudokuBoard.CellsArray.GetRowsLength()));
 		}
 
-		[Test]
-		public void Are_Input_Numbers_Correct_After_Clean_Cell()
+		[TestCaseSource(nameof(SudokuTypes))]
+		public void Are_Input_Numbers_Correct_After_Clean_Cell(SudokuType sudokuType)
 		{
-			int rows = 9;
-			int columns = 9;
-			IBoardSolver boardSolver = new BoardSolver();
-			SudokuBoard sudokuBoard = new SudokuBoard(rows, columns, boardSolver);
-			IBoardGenerator boardGenerator = new RandomBoardGenerator(sudokuBoard.CellsArray.GetRowsLength(), sudokuBoard.CellsArray.GetColumnsLength(), boardSolver, sudokuBoard.CanPlaceValue, sudokuBoard.IsFullFilled);
-			InputNumbers inputNumbers = new InputNumbers(9);
+			SudokuGridConfig sudokuGridConfig = SudokuConfig.GetConfig(sudokuType);
+			IBoardSolver boardSolver = new BoardSolver(sudokuGridConfig);
+			SudokuBoard sudokuBoard = new SudokuBoard(sudokuGridConfig, boardSolver);
+			IBoardGenerator boardGenerator = new RandomBoardGenerator(sudokuGridConfig, boardSolver, sudokuBoard.CanPlaceValue, sudokuBoard.IsFullFilled);
+			InputNumbers inputNumbers = new InputNumbers(sudokuBoard.CellsArray.GetRowsLength());
 			int numberToRemove = 1;
 
 			boardGenerator.Generate(sudokuBoard.CellsArray);

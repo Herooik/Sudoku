@@ -7,8 +7,8 @@ using UnityEngine;
 
 public class SelectedGameSettings
 {
-	public SudokuType SudokuType = SudokuType.NINE_BY_NINE;
-	public SudokuDifficulty Difficulty = SudokuDifficulty.NORMAL;
+	public SudokuType SudokuType;
+	public SudokuDifficulty Difficulty;
 }
 
 namespace Gui

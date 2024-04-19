@@ -12,16 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca6402bae5bb42378947c5911f465c29, type: 3}
   m_Name: DifficultyRulesSettings
   m_EditorClassIdentifier: 
-  _difficultySettings:
-  - SudokuType: 3
-    DifficultySettings:
-    - SudokuDifficulty: 0
-      CellsToRemove: 20
-    - SudokuDifficulty: 1
-      CellsToRemove: 35
-    - SudokuDifficulty: 2
-      CellsToRemove: 50
-    - SudokuDifficulty: 3
-      CellsToRemove: 65
-    - SudokuDifficulty: 4
-      CellsToRemove: 80
+  _settings:
+  - {fileID: 11400000, guid: 106775d91edc6ae49aeaf468f08b8d69, type: 2}
+  - {fileID: 11400000, guid: 52eb498ef766d2746b98413d8a1d017f, type: 2}
+  - {fileID: 11400000, guid: c14479f4e28f899438e8540395350dd5, type: 2}
+  - {fileID: 11400000, guid: 087196fe10571474282aeb463586beda, type: 2}
+  - {fileID: 11400000, guid: 0aa1965f3c928ae47b79a829eae71e3a, type: 2}
+  - {fileID: 11400000, guid: 0592bbba280ba784d9166eeb86a286e3, type: 2}
+  - {fileID: 11400000, guid: f1377fcc45c2d0b46a9ea9cfe092f16c, type: 2}

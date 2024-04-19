@@ -10,6 +10,7 @@ namespace Gui.Menu.Presenters
 	{
 		[SerializeField] private Button _startNewGameButton;
 		[SerializeField] private TMP_Dropdown _difficultyDropdown;
+		[SerializeField] private TMP_Dropdown _typeDropdown;
 
 		private MainMenuPanelModel _model;
 
@@ -17,11 +18,15 @@ namespace Gui.Menu.Presenters
 		{
 			_model = model;
 
+			_startNewGameButton.onClick.AddListener(() => _model.StartNewGame());
+
 			_difficultyDropdown.options = new List<TMP_Dropdown.OptionData>();
 			_difficultyDropdown.AddOptions(model.Difficulties);
 			_difficultyDropdown.onValueChanged.AddListener(model.ChooseDifficulty);
 
-			_startNewGameButton.onClick.AddListener(() => _model.StartNewGame());
+			_typeDropdown.options = new List<TMP_Dropdown.OptionData>();
+			_typeDropdown.AddOptions(model.Types);
+			_typeDropdown.onValueChanged.AddListener(model.ChooseType);
 
 			_model.Refresh += OnRefresh;
 			OnRefresh();
