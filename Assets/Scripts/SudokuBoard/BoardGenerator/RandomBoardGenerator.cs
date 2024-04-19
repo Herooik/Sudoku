@@ -1,7 +1,9 @@
 using System;
-using Board;
+using Configs;
+using SudokuBoard.Board;
+using SudokuBoard.Solver;
 
-namespace BoardGenerator
+namespace SudokuBoard.BoardGenerator
 {
 	public class RandomBoardGenerator : IBoardGenerator
 	{

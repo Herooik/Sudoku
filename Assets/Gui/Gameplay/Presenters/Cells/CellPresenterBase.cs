@@ -1,4 +1,5 @@
 using System;
+using Gui.Gameplay.Models;
 using Gui.ScriptableObjects;
 using TMPro;
 using UnityEngine;

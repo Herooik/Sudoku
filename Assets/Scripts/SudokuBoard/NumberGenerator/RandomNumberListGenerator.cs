@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace NumberGenerator
+namespace SudokuBoard.NumberGenerator
 {
 	public class RandomNumberListGenerator
 	{

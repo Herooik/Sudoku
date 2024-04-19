@@ -1,3 +1,5 @@
+using Gui.Gameplay.Models;
+
 namespace Gui.Gameplay.Presenters.Cells
 {
 	public class CellForUserPresenter : CellPresenterBase

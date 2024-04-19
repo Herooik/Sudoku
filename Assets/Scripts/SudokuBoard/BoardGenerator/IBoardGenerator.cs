@@ -1,4 +1,4 @@
-namespace BoardGenerator
+namespace SudokuBoard.BoardGenerator
 {
 	public interface IBoardGenerator
 	{

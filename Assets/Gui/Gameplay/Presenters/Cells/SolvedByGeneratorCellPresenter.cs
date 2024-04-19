@@ -1,4 +1,5 @@
 using System;
+using Gui.Gameplay.Models;
 
 namespace Gui.Gameplay.Presenters.Cells
 {

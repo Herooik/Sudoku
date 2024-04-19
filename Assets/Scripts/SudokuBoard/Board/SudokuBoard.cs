@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using BoardGenerator;
+using Configs;
+using SudokuBoard.BoardGenerator;
+using SudokuBoard.Solver;
 using UnityEngine;
 
-namespace Board
+namespace SudokuBoard.Board
 {
 	public class SudokuBoard
 	{

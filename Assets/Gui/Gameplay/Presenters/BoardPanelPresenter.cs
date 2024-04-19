@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Gui.Gameplay.Models;
 using Gui.Gameplay.Presenters.Cells;
 using Gui.ScriptableObjects;
 using UnityEngine;

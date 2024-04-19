@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Configs;
 using UnityEngine;
 
 namespace Gui.ScriptableObjects
