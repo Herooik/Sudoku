@@ -10,7 +10,7 @@
 	bool IsFilledGood { get; }
 }
 
-public class SolvedByGeneratorCell : ICell
+public class SolverCell : ICell
 {
 	public int Index { get; }
 	public int GroupBox { get; }
@@ -19,7 +19,7 @@ public class SolvedByGeneratorCell : ICell
 	public int Number { get; }
 	public bool IsFilledGood => true; 
 
-	public SolvedByGeneratorCell(int index, int groupBox, int row, int column, int number)
+	public SolverCell(int index, int groupBox, int row, int column, int number)
 	{
 		Index = index;
 		GroupBox = groupBox;
@@ -29,7 +29,7 @@ public class SolvedByGeneratorCell : ICell
 	}
 }
 
-public class CellForUser : ICell
+public class UserCell : ICell
 {
 	public int Index { get; }
 	public int GroupBox { get; }
@@ -40,7 +40,7 @@ public class CellForUser : ICell
 
 	private readonly int _expectedNumber;
 
-	public CellForUser(int index, int groupBox, int row, int column, int number, int expectedNumber)
+	public UserCell(int index, int groupBox, int row, int column, int number, int expectedNumber)
 	{
 		Index = index;
 		GroupBox = groupBox;

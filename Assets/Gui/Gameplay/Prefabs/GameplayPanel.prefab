@@ -599,8 +599,8 @@ MonoBehaviour:
   _mistakesText: {fileID: 1996347172429768328}
   _scoreText: {fileID: 8669858711852805223}
   _timeText: {fileID: 6307344412942511238}
-  _boardPanelPresenter: {fileID: 4398707268394113763}
-  _inputNumbersPresenter: {fileID: 8474078230108700577}
+  _boardPanelComponent: {fileID: 4398707268394113763}
+  _inputNumbersComponent: {fileID: 8474078230108700577}
   _autoSolveButton: {fileID: 1128064923816705106}
   _cleanButton: {fileID: 3149188690348098526}
 --- !u!1 &2223260721261084565
@@ -988,6 +988,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a1452b92a4fab440a9acd89b4c5f2e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _groupBoxPresenter: {fileID: -8790467692430823313, guid: e5e4b10518d51df4381f9feafc369058, type: 3}
   _holder: {fileID: 4398707268394113766}
   _sudokuCellsSpawner: {fileID: 11400000, guid: 1ac4c8d75c19eb144b0c9da8911b50bd, type: 2}
 --- !u!114 &3988301286660657315

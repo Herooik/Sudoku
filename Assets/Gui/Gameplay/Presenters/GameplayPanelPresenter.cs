@@ -12,8 +12,8 @@ namespace Gui.Gameplay.Presenters
 		[SerializeField] private TextMeshProUGUI _mistakesText;
 		[SerializeField] private TextMeshProUGUI _scoreText;
 		[SerializeField] private TextMeshProUGUI _timeText;
-		[SerializeField] private BoardPanelPresenter _boardPanelPresenter;
-		[SerializeField] private InputNumbersPresenter _inputNumbersPresenter;
+		[SerializeField] private BoardPanelComponent _boardPanelComponent;
+		[SerializeField] private InputNumbersComponent _inputNumbersComponent;
 		[SerializeField] private Button _autoSolveButton;
 		[SerializeField] private Button _cleanButton;
 
@@ -26,8 +26,8 @@ namespace Gui.Gameplay.Presenters
 			_difficultyText.SetText($"Difficulty\n{_model.Difficulty}");
 
 			_returnButton.onClick.AddListener(_model.ReturnToMenu);
-			_boardPanelPresenter.Initialize(_model.Rows, _model.SelectCell, _model.CellDisplayDataList);
-			_inputNumbersPresenter.Initialize(_model.AllNumbers, _model.PlaceNumber);
+			_boardPanelComponent.Initialize(_model.Rows, _model.SubGridRows, _model.SubGridColumns, _model.SubBoxDisplays, _model.SelectCell, _model.CellDisplayDataList);
+			_inputNumbersComponent.Initialize(_model.AllNumbers, _model.PlaceNumber);
 			_autoSolveButton.onClick.AddListener(_model.AutoSolveBoard);
 			_cleanButton.onClick.AddListener(_model.CleanCell);
 
@@ -46,8 +46,8 @@ namespace Gui.Gameplay.Presenters
 			// _scoreText.SetText($"Score \n {_model.Score}");
 			// _timeText.SetText($"Time \n {_model.Time}");
 
-			_boardPanelPresenter.Refresh(_model.CellDisplayDataList);
-			_inputNumbersPresenter.Refresh(_model.AvailableNumbers);
+			_boardPanelComponent.Refresh(_model.CellDisplayDataList);
+			_inputNumbersComponent.Refresh(_model.AvailableNumbers);
 		}
 	}
 }

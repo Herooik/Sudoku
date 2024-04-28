@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Gui.Gameplay.Presenters
 {
-	public class BoardPanelPresenter : MonoBehaviour
+	public class GroupBoxPresenter : MonoBehaviour
 	{
 		[SerializeField] private RectTransform _holder;
 		[SerializeField] private SudokuCellsSpawner _sudokuCellsSpawner;
@@ -16,9 +16,6 @@ namespace Gui.Gameplay.Presenters
 
 		public void Initialize(int rows, Action<int> onSelectCell, IReadOnlyList<CellDisplayData> cellDisplays)
 		{
-			// todo instantiate groupboxes and then cells inside them
-			// we can control then groupbox to check if there is a a value etc.
-
 			float width = _holder.rect.width / rows;
 
 			_cellPresenters = new ICellPresenter[rows, rows];
@@ -51,14 +48,6 @@ namespace Gui.Gameplay.Presenters
 			float posX = column * width + (_holder.rect.x + width / 2);
 			float posY = -(row * width + width / 2);
 			cellPresenterRt.anchoredPosition = new Vector2(posX, posY);
-		}
-
-		public void Refresh(IEnumerable<CellDisplayData> cellDisplays)
-		{
-			foreach (CellDisplayData cellDisplayData in cellDisplays)
-			{
-				_cellPresenters[cellDisplayData.Row, cellDisplayData.Column].Refresh(cellDisplayData);
-			}
 		}
 	}
 }

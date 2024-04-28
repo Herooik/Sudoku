@@ -57,7 +57,7 @@ namespace SudokuBoard.Board
 		public void PlaceValue(int value, int cellRow, int cellColumn)
 		{
 			ICell targetCell = CellsArray[cellRow, cellColumn];
-			if (targetCell is CellForUser cellForUser)
+			if (targetCell is UserCell cellForUser)
 			{
 				cellForUser.FillCell(value);
 			}
@@ -70,7 +70,7 @@ namespace SudokuBoard.Board
 		public void CleanCell(int cellRow, int cellColumn)
 		{
 			ICell targetCell = CellsArray[cellRow, cellColumn];
-			if (targetCell is CellForUser cellForUser)
+			if (targetCell is UserCell cellForUser)
 			{
 				cellForUser.SetEmpty();
 			}
@@ -127,7 +127,7 @@ namespace SudokuBoard.Board
 		public void SetCellAsEmpty(ICell cell)
 		{
 			ICell temp = CellsArray[cell.Row, cell.Column];
-			CellsArray[cell.Row, cell.Column] = new CellForUser(temp.Index, temp.GroupBox, temp.Row, temp.Column, 0, temp.Number);
+			CellsArray[cell.Row, cell.Column] = new UserCell(temp.Index, temp.GroupBox, temp.Row, temp.Column, 0, temp.Number);
 		}
 
 		public bool IsAllCellsFilledGood()

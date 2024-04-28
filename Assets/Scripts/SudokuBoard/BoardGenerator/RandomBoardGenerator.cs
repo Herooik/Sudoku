@@ -30,8 +30,9 @@ namespace SudokuBoard.BoardGenerator
 			{
 				for (int column = 0; column < rows; column++)
 				{
-					int groupBox = (row / subgridRows) + subgridColumns * (column / subgridColumns) + 1;
-					cells[row, column] = new CellForUser(row * rows + column, groupBox, row, column, 0, 0);
+					int groupBox = BoardHelper.GetGroupBoxNumber(row, column, subgridRows, subgridColumns);
+					int index = BoardHelper.CalculateIndex(row, rows, column);
+					cells[row, column] = new UserCell(index, groupBox, row, column, 0, 0);
 				}
 			}
 

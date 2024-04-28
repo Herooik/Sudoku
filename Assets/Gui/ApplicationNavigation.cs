@@ -1,4 +1,3 @@
-using Configs;
 using Gui.Gameplay.Models;
 using Gui.Gameplay.Presenters;
 using Gui.Menu.Models;
@@ -8,12 +7,6 @@ using UnityEngine;
 
 namespace Gui
 {
-	public class SelectedGameSettings
-	{
-		public SudokuType SudokuType;
-		public SudokuDifficulty Difficulty;
-	}
-
 	public class ApplicationNavigation : MonoBehaviour
 	{
 		// Script for handling application navigation like open gameplay scene, menu etc.

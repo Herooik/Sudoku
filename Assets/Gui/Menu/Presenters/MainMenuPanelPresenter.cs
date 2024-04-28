@@ -23,10 +23,12 @@ namespace Gui.Menu.Presenters
 			_difficultyDropdown.options = new List<TMP_Dropdown.OptionData>();
 			_difficultyDropdown.AddOptions(model.Difficulties);
 			_difficultyDropdown.onValueChanged.AddListener(model.ChooseDifficulty);
+			_typeDropdown.SetValueWithoutNotify(_model.SelectedDifficulty);
 
 			_typeDropdown.options = new List<TMP_Dropdown.OptionData>();
 			_typeDropdown.AddOptions(model.Types);
 			_typeDropdown.onValueChanged.AddListener(model.ChooseType);
+			_typeDropdown.SetValueWithoutNotify(_model.SelectedType);
 
 			_model.Refresh += OnRefresh;
 			OnRefresh();

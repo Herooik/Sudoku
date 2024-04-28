@@ -13,7 +13,9 @@ namespace Gui.Gameplay.Models
 	{
 		public event Action Refresh;
 
-		public int Rows => _sudokuBoard.CellsArray.GetRowsLength();
+		public int Rows => _sudokuGridConfig.Rows;
+		public int SubGridColumns => _sudokuGridConfig.SubGridColumns;
+		public int SubGridRows => _sudokuGridConfig.SubGridRows;
 		public IReadOnlyList<int> AllNumbers => _inputNumbers.AllNumbers;
 		public IEnumerable<int> AvailableNumbers => _inputNumbers.AvailableNumbers;
 		public IReadOnlyList<CellDisplayData> CellDisplayDataList => _cellDisplayDataList;
@@ -30,6 +32,8 @@ namespace Gui.Gameplay.Models
 
 		private ICell _selectedCell => _sudokuBoard.GetCell(_selectedCellIndex);
 		private int _selectedCellIndex;
+
+		public List<SubBoxDisplay> SubBoxDisplays;
 
 		public GameplayPanelModel(
 			ApplicationNavigation applicationNavigation,
@@ -52,6 +56,12 @@ namespace Gui.Gameplay.Models
 			_mistakeHandler = new MistakeHandler(0, 3); // todo: move max mistakes to global settings
 
 			Difficulty = selectedGameSettings.Difficulty;
+
+			// SubBoxDisplays = new List<SubBoxDisplay>(new SubBoxDisplay[_sudokuGridConfig.Rows]);
+			// for (int i = 0; i < _sudokuGridConfig.Rows; i++)
+			// {
+			// 	SubBoxDisplays[i] = new SubBoxDisplay(i, _sudokuGridConfig.SubGridRows, _sudokuGridConfig.SubGridColumns);
+			// }
 
 			RefreshAvailableInputNumbers();
 			RefreshCellDisplays();
@@ -162,7 +172,7 @@ namespace Gui.Gameplay.Models
 					cell.IsFilledGood,
 					cell.Number,
 					cell.IsEmpty,
-					cell is SolvedByGeneratorCell);
+					cell is SolverCell);
 			}
 			/*foreach (ICell cell in SudokuBoard.CellsArray)
 			{
@@ -208,6 +218,26 @@ namespace Gui.Gameplay.Models
 			}
 
 			_cellDisplayDataList[_selectedCell.Index] = new CellDisplayData(_selectedCell.Row, _selectedCell.Column, State.SELECTED, _selectedCell.IsFilledGood, _selectedCell.Number, _selectedCell.IsEmpty);*/
+		}
+	}
+
+	public struct SubBoxDisplay
+	{
+		public int Number;
+		// public int Row;
+		// public int Column;
+		public int Rows;
+		public int Columns;
+		public List<CellDisplayData> CellDisplayDatas;
+
+		public SubBoxDisplay(int number, int rows, int columns)
+		{
+			Number = number;
+			// Row = row;
+			// Column = column;
+			Rows = rows;
+			Columns = columns;
+			CellDisplayDatas = new List<CellDisplayData>();
 		}
 	}
 

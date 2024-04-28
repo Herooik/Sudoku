@@ -1,24 +1,29 @@
+using Configs;
+
 namespace SudokuBoard.BoardGenerator
 {
 	public class EmptyBoardGenerator : IBoardGenerator
 	{
-		private readonly int _rows;
-		private readonly int _columns;
+		private readonly SudokuGridConfig _sudokuGridConfig;
 
-		public EmptyBoardGenerator(int rows)
+		public EmptyBoardGenerator(SudokuGridConfig sudokuGridConfig)
 		{
-			_rows = rows;
-			_columns = rows;
+			_sudokuGridConfig = sudokuGridConfig;
 		}
 
 		public void Generate(ICell[,] cells)
 		{
-			for (int row = 0; row < _rows; row++)
+			int rows = _sudokuGridConfig.Rows;
+			int subgridRows = _sudokuGridConfig.SubGridRows;
+			int subgridColumns = _sudokuGridConfig.SubGridColumns;
+
+			for (int row = 0; row < rows; row++)
 			{
-				for (int column = 0; column < _columns; column++)
+				for (int column = 0; column < rows; column++)
 				{
-					int groupBox = (row / 3) + 3 * (column / 3) + 1;
-					cells[row, column] = new CellForUser(row * _rows + column, groupBox, row, column, 0, 0);
+					int groupBox = BoardHelper.GetGroupBoxNumber(row, column, subgridRows, subgridColumns);
+					int index = BoardHelper.CalculateIndex(row, rows, column);
+					cells[row, column] = new UserCell(index, groupBox, row, column, 0, 0);
 				}
 			}
 		}

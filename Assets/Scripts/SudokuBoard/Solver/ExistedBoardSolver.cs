@@ -35,9 +35,10 @@ namespace SudokuBoard.Solver
 						{
 							if (canPlaceValue.Invoke(number, cell))
 							{
-								int groupBox = (row / subgridRows) + subgridColumns * (column / subgridColumns) + 1;
+								int groupBox = BoardHelper.GetGroupBoxNumber(row, column, subgridRows, subgridColumns);
+								int index = BoardHelper.CalculateIndex(row, rows, column);
 
-								cells[row, column] = new CellForUser(row * rows + column, groupBox, row, column, number, number);
+								cells[row, column] = new UserCell(index, groupBox, row, column, number, number);
 
 								if (isBoardFullFilled.Invoke())
 								{
@@ -49,7 +50,7 @@ namespace SudokuBoard.Solver
 									return true;
 								}
 
-								cells[row, column] = new CellForUser(row * rows + column, groupBox, row, column, 0, 0);
+								cells[row, column] = new UserCell(index, groupBox, row, column, 0, 0);
 							}
 						}
 

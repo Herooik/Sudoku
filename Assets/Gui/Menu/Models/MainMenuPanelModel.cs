@@ -11,7 +11,9 @@ namespace Gui.Menu.Models
 		public event Action Refresh;
 
 		public List<string> Difficulties => _difficulties.Select(sudokuDifficulty => sudokuDifficulty.ToString()).ToList();
+		public int SelectedDifficulty { get; private set; }
 		public List<string> Types => _types.Select(sudokuType => sudokuType.ToString()).ToList();
+		public int SelectedType { get; private set; }
 
 		private readonly ApplicationNavigation _applicationNavigation;
 		private readonly SelectedGameSettings _selectedGameSettings;
@@ -46,8 +48,19 @@ namespace Gui.Menu.Models
 				SudokuType.SIXTEEN_BY_SIXTEEN,
 			};
 
-			_selectedGameSettings.Difficulty = _difficulties[0]; 
-			_selectedGameSettings.SudokuType = _types[0]; 
+			SelectedDifficulty = 0;
+			foreach (SudokuDifficulty difficulty in _difficulties.Where(d => d == _selectedGameSettings.Difficulty))
+			{
+				SelectedDifficulty = _difficulties.IndexOf(difficulty);
+				break;
+			}
+
+			SelectedType = 0;
+			foreach (SudokuType sudokuType in _types.Where(t => t == _selectedGameSettings.SudokuType))
+			{
+				SelectedType = _types.IndexOf(sudokuType);
+				break;
+			}
 		}
 
 		public void StartNewGame()

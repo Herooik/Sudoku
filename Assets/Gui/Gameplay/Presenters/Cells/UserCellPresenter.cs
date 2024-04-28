@@ -2,7 +2,7 @@ using Gui.Gameplay.Models;
 
 namespace Gui.Gameplay.Presenters.Cells
 {
-	public class CellForUserPresenter : CellPresenterBase
+	public class UserCellPresenter : CellPresenterBase
 	{
 		public override void Refresh(CellDisplayData cellDisplayData)
 		{
