@@ -31,9 +31,9 @@ namespace Tests
 			yield return new TestCaseData(SudokuType.SIX_BY_SIX);
 			yield return new TestCaseData(SudokuType.EIGHT_BY_EIGHT);
 			yield return new TestCaseData(SudokuType.NINE_BY_NINE);
-			// yield return new TestCaseData(SudokuType.TEN_BY_TEN);
-			// yield return new TestCaseData(SudokuType.TWELVE_BY_TWELVE);
-			// yield return new TestCaseData(SudokuType.SIXTEEN_BY_SIXTEEN);
+			yield return new TestCaseData(SudokuType.TEN_BY_TEN);
+			yield return new TestCaseData(SudokuType.TWELVE_BY_TWELVE);
+			yield return new TestCaseData(SudokuType.SIXTEEN_BY_SIXTEEN);
 		}
 
 		[TestCaseSource(nameof(SudokuTypes))]

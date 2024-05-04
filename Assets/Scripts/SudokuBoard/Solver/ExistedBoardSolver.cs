@@ -50,7 +50,8 @@ namespace SudokuBoard.Solver
 									return true;
 								}
 
-								cells[row, column] = new UserCell(index, groupBox, row, column, 0, 0);
+								cells[row, column] = new EmptyCell(index, groupBox, row, column);
+								// cells[row, column] = new UserCell(index, groupBox, row, column, 0, 0);
 							}
 						}
 

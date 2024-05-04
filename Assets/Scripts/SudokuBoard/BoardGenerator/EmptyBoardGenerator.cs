@@ -23,7 +23,8 @@ namespace SudokuBoard.BoardGenerator
 				{
 					int groupBox = BoardHelper.GetGroupBoxNumber(row, column, subgridRows, subgridColumns);
 					int index = BoardHelper.CalculateIndex(row, rows, column);
-					cells[row, column] = new UserCell(index, groupBox, row, column, 0, 0);
+					cells[row, column] = new EmptyCell(index, groupBox, row, column);
+					// cells[row, column] = new UserCell(index, groupBox, row, column, 0, 0);
 				}
 			}
 		}
