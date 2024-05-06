@@ -18,7 +18,7 @@ namespace SudokuBoard.Solver
 			_numberList = numberListGenerator.GenerateNumbers(_sudokuGridConfig.Rows);
 		}
 
-		public bool Solve(ICell[,] cells, Func<int, ICell, bool> canPlaceValue, Func<bool> isBoardFullFilled)
+		public bool Solve(Board.Board board, Func<int, ICell, bool> canPlaceValue, Func<bool> isBoardFullFilled)
 		{
 			int rows = _sudokuGridConfig.Rows;
 			int subgridRows = _sudokuGridConfig.SubGridRows;
@@ -28,7 +28,7 @@ namespace SudokuBoard.Solver
 			{
 				for (int column = 0; column < rows; column++)
 				{
-					ICell cell = cells[row, column];
+					ICell cell = board.GetCell(row, column);
 					if (cell.IsEmpty)
 					{
 						foreach (int number in _numberList)
@@ -38,20 +38,19 @@ namespace SudokuBoard.Solver
 								int groupBox = BoardHelper.GetGroupBoxNumber(row, column, subgridRows, subgridColumns);
 								int index = BoardHelper.CalculateIndex(row, rows, column);
 
-								cells[row, column] = new UserCell(index, groupBox, row, column, number, number);
+								board.SetCellAsUser(index, groupBox, row, column, number, number);
 
 								if (isBoardFullFilled.Invoke())
 								{
 									return true;
 								}
 
-								if (Solve(cells, canPlaceValue, isBoardFullFilled))
+								if (Solve(board, canPlaceValue, isBoardFullFilled))
 								{
 									return true;
 								}
 
-								cells[row, column] = new EmptyCell(index, groupBox, row, column);
-								// cells[row, column] = new UserCell(index, groupBox, row, column, 0, 0);
+								board.SetCellAsEmpty(index, groupBox, row, column);
 							}
 						}
 

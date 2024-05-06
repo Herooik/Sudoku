@@ -25,15 +25,15 @@ namespace Gui.Gameplay.Models
 
 		private readonly ApplicationNavigation _applicationNavigation;
 		private readonly SudokuGridConfig _sudokuGridConfig;
-		private readonly SudokuBoard.Board.SudokuBoard _sudokuBoard;
+		private readonly Board _board;
 		private readonly List<CellDisplayData> _cellDisplayDataList;
 		private readonly InputNumbers _inputNumbers;
 		private readonly MistakeHandler _mistakeHandler;
 
-		private ICell _selectedCell => _sudokuBoard.GetCell(_selectedCellIndex);
+		private ICell _selectedCell => _board.GetCell(_selectedCellIndex);
 		private int _selectedCellIndex;
 
-		public List<SubBoxDisplay> SubBoxDisplays;
+		public List<SubBoxDisplay> SubBoxDisplays; //todo
 
 		public GameplayPanelModel(
 			ApplicationNavigation applicationNavigation,
@@ -44,24 +44,19 @@ namespace Gui.Gameplay.Models
 			_sudokuGridConfig = SudokuConfig.GetConfig(selectedGameSettings.SudokuType);
 
 			IBoardSolver boardSolver = new BoardSolver(_sudokuGridConfig);
-			_sudokuBoard = new SudokuBoard.Board.SudokuBoard(_sudokuGridConfig, boardSolver);
-			_sudokuBoard.GenerateNewBoard(difficultyRulesSettings.GetCellsToRemove(selectedGameSettings.SudokuType, selectedGameSettings.Difficulty));
+			_board = new SudokuBoard.Board.Board(_sudokuGridConfig, boardSolver);
+			_board.GenerateNewBoard(difficultyRulesSettings.GetCellsToRemove(selectedGameSettings.SudokuType, selectedGameSettings.Difficulty));
 
-			_cellDisplayDataList = new List<CellDisplayData>(new CellDisplayData[_sudokuBoard.CellsArray.Length]);
+			_cellDisplayDataList = new List<CellDisplayData>(new CellDisplayData[_board.GetRowsLength() * _board.GetRowsLength()]);
 
 			Random random = new();
-			_selectedCellIndex = _sudokuBoard.CellsArray[random.Next(0, _sudokuGridConfig.Rows), random.Next(0, _sudokuGridConfig.Rows)].Index;
+			// _selectedCellIndex = _board.CellsArray[random.Next(0, _sudokuGridConfig.Rows), random.Next(0, _sudokuGridConfig.Rows)].Index;
+			_selectedCellIndex = random.Next(0, _cellDisplayDataList.Count);
 
-			_inputNumbers = new InputNumbers(_sudokuBoard.CellsArray.GetRowsLength());
+			_inputNumbers = new InputNumbers(Rows);
 			_mistakeHandler = new MistakeHandler(0, 3); // todo: move max mistakes to global settings
 
 			Difficulty = selectedGameSettings.Difficulty;
-
-			// SubBoxDisplays = new List<SubBoxDisplay>(new SubBoxDisplay[_sudokuGridConfig.Rows]);
-			// for (int i = 0; i < _sudokuGridConfig.Rows; i++)
-			// {
-			// 	SubBoxDisplays[i] = new SubBoxDisplay(i, _sudokuGridConfig.SubGridRows, _sudokuGridConfig.SubGridColumns);
-			// }
 
 			RefreshAvailableInputNumbers();
 			RefreshCellDisplays();
@@ -88,14 +83,14 @@ namespace Gui.Gameplay.Models
 				return;
 			}
 
-			_sudokuBoard.PlaceValue(number, _selectedCell.Row, _selectedCell.Column);
+			_board.PlaceValue(number, _selectedCell.Row, _selectedCell.Column);
 
 			if (!_selectedCell.IsFilledGood)
 			{
 				_mistakeHandler.Increase();
 			}
 
-			bool isGameEnd = _sudokuBoard.IsAllCellsFilledGood() || _mistakeHandler.MaxedOut;
+			bool isGameEnd = _board.IsAllCellsFilledGood() || _mistakeHandler.MaxedOut;
 			if (isGameEnd)
 			{
 				_applicationNavigation.OpenMainMenu();
@@ -109,7 +104,7 @@ namespace Gui.Gameplay.Models
 		public void AutoSolveBoard()
 		{
 			IBoardSolver boardSolver = new ExistedBoardSolver(_sudokuGridConfig);
-			boardSolver.Solve(_sudokuBoard.CellsArray, _sudokuBoard.CanPlaceValue, _sudokuBoard.IsFullFilled);
+			boardSolver.Solve(_board, _board.CanPlaceValue, _board.IsFullFilled);
 
 			RefreshAvailableInputNumbers();
 			RefreshCellDisplays();
@@ -118,7 +113,7 @@ namespace Gui.Gameplay.Models
 
 		public void CleanCell()
 		{
-			_sudokuBoard.CleanCell(_selectedCell.Row, _selectedCell.Column);
+			_board.CleanCell(_selectedCell.Row, _selectedCell.Column);
 
 			RefreshAvailableInputNumbers();
 			RefreshCellDisplays();
@@ -127,9 +122,9 @@ namespace Gui.Gameplay.Models
 
 		private void RefreshAvailableInputNumbers()
 		{
-			for (int i = 1; i <= _sudokuBoard.CellsArray.GetRowsLength(); i++)
+			for (int i = 1; i <= Rows; i++)
 			{
-				if (_sudokuBoard.IsValueReachMaxOutUsed(i))
+				if (_board.IsValueReachMaxOutUsed(i))
 				{
 					_inputNumbers.RemoveNumber(i);
 				}
@@ -142,82 +137,42 @@ namespace Gui.Gameplay.Models
 
 		private void RefreshCellDisplays()
 		{
-			foreach (ICell cell in _sudokuBoard.CellsArray)
+			for (int row = 0; row < _board.GetRowsLength(); row++)
 			{
-				State state = State.DEFAULT;
-
-				if (!cell.IsEmpty && cell.Number == _selectedCell.Number)
+				for (int col = 0; col < _board.GetRowsLength(); col++)
 				{
-					state = State.SAME_NUMBER;
-				}
+					ICell cell = _board.GetCell(row, col);
+					State state = State.DEFAULT;
 
-				if (cell.Row == _selectedCell.Row || cell.Column == _selectedCell.Column || cell.GroupBox == _selectedCell.GroupBox)
-				{
-					state = State.SAME_ROW_COLUMN_GROUP;
 					if (!cell.IsEmpty && cell.Number == _selectedCell.Number)
 					{
-						state = State.SAME_WRONG_NUMBER_IN_ROW_COLUMN_GROUP;
+						state = State.SAME_NUMBER;
 					}
-				}
 
-				if (cell.Index == _selectedCellIndex)
-				{
-					state = State.SELECTED;
-				}
+					if (cell.Row == _selectedCell.Row || cell.Column == _selectedCell.Column || cell.GroupBox == _selectedCell.GroupBox)
+					{
+						state = State.SAME_ROW_COLUMN_GROUP;
+						if (!cell.IsEmpty && cell.Number == _selectedCell.Number)
+						{
+							state = State.SAME_WRONG_NUMBER_IN_ROW_COLUMN_GROUP;
+						}
+					}
 
-				_cellDisplayDataList[cell.Index] = new CellDisplayData(cell.Row,
-					cell.Column,
-					cell.GroupBox,
-					state,
-					cell.IsFilledGood,
-					cell.Number,
-					cell.IsEmpty,
-					cell is SolverCell);
-			}
-			/*foreach (ICell cell in SudokuBoard.CellsArray)
-			{
-				_cellDisplayDataList[cell.Index] = new CellDisplayData(cell.Row, cell.Column, State.DEFAULT, cell.IsFilledGood, cell.Number, cell.IsEmpty);
-			}
-			
-			IEnumerable<ICell> cellsWithSameNumber = SudokuBoard.GetFilledCellsWithSameNumber(_selectedCell.Number);
-			foreach (ICell cell in cellsWithSameNumber)
-			{
-				_cellDisplayDataList[cell.Index] = new CellDisplayData(cell.Row, cell.Column, State.SAME_NUMBER, cell.IsFilledGood, cell.Number, cell.IsEmpty);
-			}
-			
-			for (int i = 0; i < SudokuBoard.CellsArray.GetRowsLength(); i++)
-			{
-				ICell cell = SudokuBoard.CellsArray[i, _selectedCell.Column];
-				State state = State.SAME_ROW_COLUMN_GROUP;
-				if (cell.Number == _selectedCell.Number && !cell.IsEmpty)
-				{
-					state = State.SAME_WRONG_NUMBER_IN_ROW_COLUMN_GROUP;
-				}
-				_cellDisplayDataList[cell.Index] = new CellDisplayData(cell.Row, cell.Column, state, cell.IsFilledGood, cell.Number, cell.IsEmpty);
-			}
-			
-			for (int i = 0; i < SudokuBoard.CellsArray.GetColumnsLength(); i++)
-			{
-				ICell cell = SudokuBoard.CellsArray[_selectedCell.Row, i];
-				State state = State.SAME_ROW_COLUMN_GROUP;
-				if (cell.Number == _selectedCell.Number && !cell.IsEmpty)
-				{
-					state = State.SAME_WRONG_NUMBER_IN_ROW_COLUMN_GROUP;
-				}
-				_cellDisplayDataList[cell.Index] = new CellDisplayData(cell.Row, cell.Column, state, cell.IsFilledGood, cell.Number, cell.IsEmpty);
-			}
-			
-			foreach (ICell cell in SudokuBoard.GetCellsWithSameGroupBox(_selectedCell.GroupBox))
-			{
-				State state = State.SAME_ROW_COLUMN_GROUP;
-				if (cell.Number == _selectedCell.Number && !cell.IsEmpty)
-				{
-					state = State.SAME_WRONG_NUMBER_IN_ROW_COLUMN_GROUP;
-				}
-				_cellDisplayDataList[cell.Index] = new CellDisplayData(cell.Row, cell.Column, state, cell.IsFilledGood, cell.Number, cell.IsEmpty);
-			}
+					if (cell.Index == _selectedCellIndex)
+					{
+						state = State.SELECTED;
+					}
 
-			_cellDisplayDataList[_selectedCell.Index] = new CellDisplayData(_selectedCell.Row, _selectedCell.Column, State.SELECTED, _selectedCell.IsFilledGood, _selectedCell.Number, _selectedCell.IsEmpty);*/
+					_cellDisplayDataList[cell.Index] = new CellDisplayData(cell.Row,
+						cell.Column,
+						cell.GroupBox,
+						state,
+						cell.IsFilledGood,
+						cell.Number,
+						cell.IsEmpty,
+						cell is SolverCell);
+				}
+			}
 		}
 	}
 

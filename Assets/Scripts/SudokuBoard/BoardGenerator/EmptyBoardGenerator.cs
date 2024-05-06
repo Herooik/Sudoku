@@ -11,7 +11,7 @@ namespace SudokuBoard.BoardGenerator
 			_sudokuGridConfig = sudokuGridConfig;
 		}
 
-		public void Generate(ICell[,] cells)
+		public void Generate(Board.Board board)
 		{
 			int rows = _sudokuGridConfig.Rows;
 			int subgridRows = _sudokuGridConfig.SubGridRows;
@@ -23,8 +23,7 @@ namespace SudokuBoard.BoardGenerator
 				{
 					int groupBox = BoardHelper.GetGroupBoxNumber(row, column, subgridRows, subgridColumns);
 					int index = BoardHelper.CalculateIndex(row, rows, column);
-					cells[row, column] = new EmptyCell(index, groupBox, row, column);
-					// cells[row, column] = new UserCell(index, groupBox, row, column, 0, 0);
+					board.SetCellAsEmpty(index, groupBox, row, column);
 				}
 			}
 		}

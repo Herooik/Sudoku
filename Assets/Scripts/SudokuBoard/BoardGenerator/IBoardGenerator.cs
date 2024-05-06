@@ -2,6 +2,6 @@ namespace SudokuBoard.BoardGenerator
 {
 	public interface IBoardGenerator
 	{
-		public void Generate(ICell[,] cells);
+		public void Generate(Board.Board board);
 	}
 }

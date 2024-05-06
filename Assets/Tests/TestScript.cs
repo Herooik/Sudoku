@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Configs;
 using NUnit.Framework;
-using SudokuBoard.Board;
 using SudokuBoard.BoardGenerator;
 using SudokuBoard.MistakeHandler;
 using SudokuBoard.PlayerInputNumbers;
@@ -17,10 +16,10 @@ namespace Tests
 		{
 			SudokuGridConfig sudokuGridConfig = SudokuConfig.GetConfig(sudokuType);
 			IBoardSolver boardSolver = new BoardSolver(sudokuGridConfig);
-			SudokuBoard.Board.SudokuBoard sudokuBoard = new SudokuBoard.Board.SudokuBoard(sudokuGridConfig, boardSolver);
+			SudokuBoard.Board.Board board = new SudokuBoard.Board.Board(sudokuGridConfig, boardSolver);
 
-			sudokuBoard.GenerateNewBoard(10);
-			bool solved = boardSolver.Solve(sudokuBoard.CellsArray, sudokuBoard.CanPlaceValue, sudokuBoard.IsFullFilled);
+			board.GenerateNewBoard(10);
+			bool solved = boardSolver.Solve(board, board.CanPlaceValue, board.IsFullFilled);
 
 			Assert.That(solved, Is.True);
 		}
@@ -41,10 +40,10 @@ namespace Tests
 		{
 			SudokuGridConfig sudokuGridConfig = SudokuConfig.GetConfig(sudokuType);
 			IBoardSolver boardSolver = new BoardSolver(sudokuGridConfig);
-			SudokuBoard.Board.SudokuBoard sudokuBoard = new SudokuBoard.Board.SudokuBoard(sudokuGridConfig, boardSolver);
+			SudokuBoard.Board.Board board = new SudokuBoard.Board.Board(sudokuGridConfig, boardSolver);
 			IBoardGenerator boardGenerator = new EmptyBoardGenerator(sudokuGridConfig);
 
-			boardGenerator.Generate(sudokuBoard.CellsArray);
+			boardGenerator.Generate(board);
 		}
 
 		[TestCaseSource(nameof(SudokuTypes))]
@@ -52,14 +51,15 @@ namespace Tests
 		{
 			SudokuGridConfig sudokuGridConfig = SudokuConfig.GetConfig(sudokuType);
 			IBoardSolver boardSolver = new BoardSolver(sudokuGridConfig);
-			SudokuBoard.Board.SudokuBoard sudokuBoard = new SudokuBoard.Board.SudokuBoard(sudokuGridConfig, boardSolver);
+			SudokuBoard.Board.Board board = new SudokuBoard.Board.Board(sudokuGridConfig, boardSolver);
 			IBoardGenerator boardGenerator = new EmptyBoardGenerator(sudokuGridConfig);
 
-			boardGenerator.Generate(sudokuBoard.CellsArray);
+			boardGenerator.Generate(board);
 
-			sudokuBoard.CellsArray[0, 0] = new UserCell(0, 0, 0, 0, 0, 5);
-			UserCell userCell = (UserCell)sudokuBoard.CellsArray[0, 0];
-			sudokuBoard.PlaceValue(5, userCell.Row, userCell.Column);
+			board.SetCellAsUser(0, 0, 0, 0, 0, 5);
+
+			UserCell userCell = (UserCell)board.GetCell(0, 0);
+			board.PlaceValue(5, userCell.Row, userCell.Column);
 
 			Assert.That(userCell.IsFilledGood, Is.True);
 		}
@@ -70,14 +70,15 @@ namespace Tests
 		{
 			SudokuGridConfig sudokuGridConfig = SudokuConfig.GetConfig(sudokuType);
 			IBoardSolver boardSolver = new BoardSolver(sudokuGridConfig);
-			SudokuBoard.Board.SudokuBoard sudokuBoard = new SudokuBoard.Board.SudokuBoard(sudokuGridConfig, boardSolver);
+			SudokuBoard.Board.Board board = new SudokuBoard.Board.Board(sudokuGridConfig, boardSolver);
 			IBoardGenerator boardGenerator = new EmptyBoardGenerator(sudokuGridConfig);
 
-			boardGenerator.Generate(sudokuBoard.CellsArray);
+			boardGenerator.Generate(board);
 
-			sudokuBoard.CellsArray[0, 0] = new UserCell(0, 0, 0, 0, 0, 7);
-			UserCell userCell = (UserCell)sudokuBoard.CellsArray[0, 0];
-			sudokuBoard.PlaceValue(3, userCell.Row, userCell.Column);
+			board.SetCellAsUser(0, 0, 0, 0, 0, 7);
+
+			UserCell userCell = (UserCell)board.GetCell(0, 0);
+			board.PlaceValue(3, userCell.Row, userCell.Column);
 
 			Assert.That(userCell.IsFilledGood, Is.False);
 		}
@@ -87,13 +88,13 @@ namespace Tests
 		{
 			SudokuGridConfig sudokuGridConfig = SudokuConfig.GetConfig(sudokuType);
 			IBoardSolver boardSolver = new BoardSolver(sudokuGridConfig);
-			SudokuBoard.Board.SudokuBoard sudokuBoard = new SudokuBoard.Board.SudokuBoard(sudokuGridConfig, boardSolver);
+			SudokuBoard.Board.Board board = new SudokuBoard.Board.Board(sudokuGridConfig, boardSolver);
 			IBoardGenerator boardGenerator = new EmptyBoardGenerator(sudokuGridConfig);
-			InputNumbers inputNumbers = new InputNumbers(sudokuBoard.CellsArray.GetRowsLength());
+			InputNumbers inputNumbers = new InputNumbers(board.GetRowsLength());
 
-			boardGenerator.Generate(sudokuBoard.CellsArray);
+			boardGenerator.Generate(board);
 
-			Assert.That(inputNumbers.AvailableNumbers.Count, Is.EqualTo(sudokuBoard.CellsArray.GetRowsLength()));
+			Assert.That(inputNumbers.AvailableNumbers.Count, Is.EqualTo(board.GetRowsLength()));
 		}
 
 		[TestCaseSource(nameof(SudokuTypes))]
@@ -101,24 +102,21 @@ namespace Tests
 		{
 			SudokuGridConfig sudokuGridConfig = SudokuConfig.GetConfig(sudokuType);
 			IBoardSolver boardSolver = new BoardSolver(sudokuGridConfig);
-			SudokuBoard.Board.SudokuBoard sudokuBoard = new SudokuBoard.Board.SudokuBoard(sudokuGridConfig, boardSolver);
-			IBoardGenerator boardGenerator = new RandomBoardGenerator(sudokuGridConfig, boardSolver, sudokuBoard.CanPlaceValue, sudokuBoard.IsFullFilled);
-			InputNumbers inputNumbers = new InputNumbers(sudokuBoard.CellsArray.GetRowsLength());
+			SudokuBoard.Board.Board board = new SudokuBoard.Board.Board(sudokuGridConfig, boardSolver);
+			IBoardGenerator boardGenerator = new RandomBoardGenerator(sudokuGridConfig, boardSolver, board.CanPlaceValue, board.IsFullFilled);
+			InputNumbers inputNumbers = new InputNumbers(board.GetRowsLength());
 			int numberToRemove = 1;
 
-			boardGenerator.Generate(sudokuBoard.CellsArray);
+			boardGenerator.Generate(board);
 
-			foreach (ICell cell in sudokuBoard.CellsArray)
+			foreach (ICell cell in board.GetAllCellsWithNumber(numberToRemove))
 			{
-				if (cell.Number == numberToRemove)
-				{
-					sudokuBoard.SetCellAsEmpty(cell);
-				}
+				board.SetCellAsEmpty(cell);
 			}
 
-			for (int i = 1; i <= sudokuBoard.CellsArray.GetRowsLength(); i++)
+			for (int i = 1; i <= board.GetRowsLength(); i++)
 			{
-				if (sudokuBoard.IsValueReachMaxOutUsed(i))
+				if (board.IsValueReachMaxOutUsed(i))
 				{
 					inputNumbers.RemoveNumber(i);
 				}
