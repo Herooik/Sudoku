@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Configs;
 using Gui.ScriptableObjects;
 using SudokuBoard.Board;
+using SudokuBoard.BoardGenerator;
 using SudokuBoard.MistakeHandler;
 using SudokuBoard.PlayerInputNumbers;
 using SudokuBoard.Solver;
@@ -44,8 +45,10 @@ namespace Gui.Gameplay.Models
 			_sudokuGridConfig = SudokuConfig.GetConfig(selectedGameSettings.SudokuType);
 
 			IBoardSolver boardSolver = new BoardSolver(_sudokuGridConfig);
-			_board = new SudokuBoard.Board.Board(_sudokuGridConfig, boardSolver);
-			_board.GenerateNewBoard(difficultyRulesSettings.GetCellsToRemove(selectedGameSettings.SudokuType, selectedGameSettings.Difficulty));
+			_board = new Board(_sudokuGridConfig);
+			IBoardGenerator boardGenerator = new RandomBoardGenerator(_sudokuGridConfig, boardSolver, _board.CanPlaceValue, _board.IsFullFilled);
+			boardGenerator.Generate(_board);
+			_board.RemoveRandomCellsFromBoard(difficultyRulesSettings.GetCellsToRemove(selectedGameSettings.SudokuType, selectedGameSettings.Difficulty));
 
 			_cellDisplayDataList = new List<CellDisplayData>(new CellDisplayData[_board.GetRowsLength() * _board.GetRowsLength()]);
 
@@ -85,12 +88,12 @@ namespace Gui.Gameplay.Models
 
 			_board.PlaceValue(number, _selectedCell.Row, _selectedCell.Column);
 
-			if (!_selectedCell.IsFilledGood)
+			if (!_board.Validate())
 			{
 				_mistakeHandler.Increase();
 			}
 
-			bool isGameEnd = _board.IsAllCellsFilledGood() || _mistakeHandler.MaxedOut;
+			bool isGameEnd = (_board.IsFullFilled() && _board.Validate()) || _mistakeHandler.MaxedOut;
 			if (isGameEnd)
 			{
 				_applicationNavigation.OpenMainMenu();

@@ -18,7 +18,7 @@ namespace SudokuBoard.Solver
 			_numberList = numberListGenerator.GenerateNumbers(_sudokuGridConfig.Rows);
 		}
 
-		public bool Solve(Board.Board board, Func<int, ICell, bool> canPlaceValue, Func<bool> isBoardFullFilled)
+		public bool Solve(Board.Board board, Func<int, int, int, bool> canPlaceValue, Func<bool> isBoardFullFilled)
 		{
 			int rows = _sudokuGridConfig.Rows;
 			int subgridRows = _sudokuGridConfig.SubGridRows;
@@ -33,7 +33,7 @@ namespace SudokuBoard.Solver
 					{
 						foreach (int number in _numberList)
 						{
-							if (canPlaceValue.Invoke(number, cell))
+							if (canPlaceValue.Invoke(row, column, number))
 							{
 								int groupBox = BoardHelper.GetGroupBoxNumber(row, column, subgridRows, subgridColumns);
 								int index = BoardHelper.CalculateIndex(row, rows, column);
@@ -50,7 +50,8 @@ namespace SudokuBoard.Solver
 									return true;
 								}
 
-								board.SetCellAsUser(index, groupBox, row, column, 0, 0);
+								board.SetCellAsEmpty(index, groupBox, row, column);
+								// board.SetCellAsUser(index, groupBox, row, column, 0, 0);
 							}
 						}
 

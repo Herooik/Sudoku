@@ -5,24 +5,26 @@ namespace SudokuBoard
 {
 	public static class RemoveRandomCellsHandler
 	{ 
-		public static void RemoveRandomCellsFromBoard(ICell[,] sudokuBoardCells, int cellsToRemove, Action<ICell> setCellAsEmpty)
+		public static void RemoveRandomCellsFromBoard(Board.Board sudokuBoard, int cellsToRemove, Action<int, int, int, int> setCellAsEmpty)
 		{
 			Assert.AreNotEqual(cellsToRemove, 0);
 
 			Random random = new();
-			int rows = sudokuBoardCells.GetLength(0);
+			int rows = sudokuBoard.GetRowsLength();
 
 			for (int i = 0; i < cellsToRemove; i++)
 			{
 				int row = random.Next(0, rows);
 				int column = random.Next(0, rows);
-				while (sudokuBoardCells[row, column].IsEmpty)
+				ICell cellToRemove = sudokuBoard.GetCell(row, column); 
+				while (cellToRemove.IsEmpty)
 				{
 					row = random.Next(0, rows);
 					column = random.Next(0, rows);
+					cellToRemove = sudokuBoard.GetCell(row, column);
 				}
 
-				setCellAsEmpty?.Invoke(sudokuBoardCells[row, column]);
+				setCellAsEmpty?.Invoke(cellToRemove.Index, cellToRemove.GroupBox, cellToRemove.Row, cellToRemove.Column);
 			}
 		}
 	}

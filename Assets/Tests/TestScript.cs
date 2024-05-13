@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Configs;
 using NUnit.Framework;
+using SudokuBoard;
 using SudokuBoard.BoardGenerator;
 using SudokuBoard.MistakeHandler;
 using SudokuBoard.PlayerInputNumbers;
@@ -16,9 +17,11 @@ namespace Tests
 		{
 			SudokuGridConfig sudokuGridConfig = SudokuConfig.GetConfig(sudokuType);
 			IBoardSolver boardSolver = new BoardSolver(sudokuGridConfig);
-			SudokuBoard.Board.Board board = new SudokuBoard.Board.Board(sudokuGridConfig, boardSolver);
+			SudokuBoard.Board.Board board = new SudokuBoard.Board.Board(sudokuGridConfig);
+			IBoardGenerator boardGenerator = new RandomBoardGenerator(sudokuGridConfig, boardSolver, board.CanPlaceValue, board.IsFullFilled);
+			boardGenerator.Generate(board);
 
-			board.GenerateNewBoard(10);
+			RemoveRandomCellsHandler.RemoveRandomCellsFromBoard(board, 10, board.SetCellAsEmpty);
 			bool solved = boardSolver.Solve(board, board.CanPlaceValue, board.IsFullFilled);
 
 			Assert.That(solved, Is.True);
@@ -35,84 +38,169 @@ namespace Tests
 			yield return new TestCaseData(SudokuType.SIXTEEN_BY_SIXTEEN);
 		}
 
-		[TestCaseSource(nameof(SudokuTypes))]
-		public void Is_Duplicate_Value_In_Row(SudokuType sudokuType)
+		[TestCase]
+		public void Remove_Cells_From_Board()
 		{
-			SudokuGridConfig sudokuGridConfig = SudokuConfig.GetConfig(sudokuType);
-			IBoardSolver boardSolver = new BoardSolver(sudokuGridConfig);
-			SudokuBoard.Board.Board board = new SudokuBoard.Board.Board(sudokuGridConfig, boardSolver);
-			IBoardGenerator boardGenerator = new EmptyBoardGenerator(sudokuGridConfig);
+			SudokuGridConfig sudokuGridConfig = SudokuConfig.GetConfig(SudokuType.FOUR_BY_FOUR);
+			SudokuBoard.Board.Board board = new(sudokuGridConfig);
 
-			boardGenerator.Generate(board);
+			int[,] grid = new int[,]
+			{
+				{ 1, 2, 3, 4 },
+				{ 4, 3, 2, 1 },
+				{ 2, 1, 4, 3 },
+				{ 3, 4, 1, 2 },
+			};
+			BoardHelper.BuildFromInt(board, grid, sudokuGridConfig);
+
+			int cellsToRemove = 5;
+			RemoveRandomCellsHandler.RemoveRandomCellsFromBoard(board, cellsToRemove, board.SetCellAsEmpty);
+
+			int emptyCells = 0;
+			for (int row = 0; row < board.GetRowsLength(); row++)
+			{
+				for (int col = 0; col < board.GetRowsLength(); col++)
+				{
+					ICell cell = board.GetCell(row, col);
+					if (cell.IsEmpty)
+						emptyCells++;
+				}
+			}
+
+			Assert.That(emptyCells, Is.EqualTo(cellsToRemove));
 		}
 
-		[TestCaseSource(nameof(SudokuTypes))]
-		public void Place_Valid_Value(SudokuType sudokuType)
+		[TestCase]
+		public void Duplicate_Value_In_Row()
 		{
-			SudokuGridConfig sudokuGridConfig = SudokuConfig.GetConfig(sudokuType);
-			IBoardSolver boardSolver = new BoardSolver(sudokuGridConfig);
-			SudokuBoard.Board.Board board = new SudokuBoard.Board.Board(sudokuGridConfig, boardSolver);
-			IBoardGenerator boardGenerator = new EmptyBoardGenerator(sudokuGridConfig);
+			SudokuGridConfig sudokuGridConfig = SudokuConfig.GetConfig(SudokuType.FOUR_BY_FOUR);
+			SudokuBoard.Board.Board board = new(sudokuGridConfig);
 
-			boardGenerator.Generate(board);
+			int[,] grid = new int[,]
+			{
+				{ 1, 2, 1, 1 },
+				{ 4, 3, 2, 1 },
+				{ 2, 1, 4, 3 },
+				{ 3, 4, 1, 2 },
+			};
+			BoardHelper.BuildFromInt(board, grid, sudokuGridConfig);
 
-			board.SetCellAsUser(0, 0, 0, 0, 0, 5);
-
-			UserCell userCell = (UserCell)board.GetCell(0, 0);
-			board.PlaceValue(5, userCell.Row, userCell.Column);
-
-			Assert.That(userCell.IsFilledGood, Is.True);
+			Assert.That(board.Validate(), Is.False);
 		}
 
+		[TestCase]
+		public void Duplicate_Value_In_Column()
+		{
+			SudokuGridConfig sudokuGridConfig = SudokuConfig.GetConfig(SudokuType.FOUR_BY_FOUR);
+			SudokuBoard.Board.Board board = new(sudokuGridConfig);
+
+			int[,] grid = new int[,]
+			{
+				{ 1, 2, 3, 4 },
+				{ 1, 3, 2, 1 },
+				{ 2, 1, 4, 3 },
+				{ 3, 4, 1, 2 },
+			};
+			BoardHelper.BuildFromInt(board, grid, sudokuGridConfig);
+
+			Assert.That(board.Validate(), Is.False);
+		}
 		
-		[TestCaseSource(nameof(SudokuTypes))]
-		public void Place_Invalid_Value(SudokuType sudokuType)
+		[TestCase]
+		public void Duplicate_Value_In_GroupBox()
 		{
-			SudokuGridConfig sudokuGridConfig = SudokuConfig.GetConfig(sudokuType);
-			IBoardSolver boardSolver = new BoardSolver(sudokuGridConfig);
-			SudokuBoard.Board.Board board = new SudokuBoard.Board.Board(sudokuGridConfig, boardSolver);
-			IBoardGenerator boardGenerator = new EmptyBoardGenerator(sudokuGridConfig);
+			SudokuGridConfig sudokuGridConfig = SudokuConfig.GetConfig(SudokuType.FOUR_BY_FOUR);
+			SudokuBoard.Board.Board board = new(sudokuGridConfig);
 
-			boardGenerator.Generate(board);
+			int[,] grid = new int[,]
+			{
+				{ 1, 2, 3, 4 },
+				{ 4, 1, 2, 1 },
+				{ 2, 1, 4, 3 },
+				{ 3, 4, 1, 2 },
+			};
+			BoardHelper.BuildFromInt(board, grid, sudokuGridConfig);
 
-			board.SetCellAsUser(0, 0, 0, 0, 0, 7);
-
-			UserCell userCell = (UserCell)board.GetCell(0, 0);
-			board.PlaceValue(3, userCell.Row, userCell.Column);
-
-			Assert.That(userCell.IsFilledGood, Is.False);
+			Assert.That(board.Validate(), Is.False);
 		}
 
-		[TestCaseSource(nameof(SudokuTypes))]
-		public void Are_Input_Numbers_Correct_On_Init(SudokuType sudokuType)
+		[TestCase]
+		public void Place_Valid_Value()
 		{
-			SudokuGridConfig sudokuGridConfig = SudokuConfig.GetConfig(sudokuType);
-			IBoardSolver boardSolver = new BoardSolver(sudokuGridConfig);
-			SudokuBoard.Board.Board board = new SudokuBoard.Board.Board(sudokuGridConfig, boardSolver);
-			IBoardGenerator boardGenerator = new EmptyBoardGenerator(sudokuGridConfig);
-			InputNumbers inputNumbers = new InputNumbers(board.GetRowsLength());
+			SudokuGridConfig sudokuGridConfig = SudokuConfig.GetConfig(SudokuType.FOUR_BY_FOUR);
+			SudokuBoard.Board.Board board = new(sudokuGridConfig);
 
-			boardGenerator.Generate(board);
+			int[,] grid = new int[,]
+			{
+				{ 1, 2, 3, 0 },
+				{ 4, 3, 2, 1 },
+				{ 2, 1, 4, 3 },
+				{ 3, 4, 1, 2 },
+			};
+			BoardHelper.BuildFromInt(board, grid, sudokuGridConfig);
+
+			ICell userCell = board.GetCell(0, 3);
+			board.PlaceValue(4, userCell.Row, userCell.Column);
+
+			Assert.That(board.Validate(), Is.True);
+		}
+
+
+		[TestCase]
+		public void Place_Invalid_Value()
+		{
+			SudokuGridConfig sudokuGridConfig = SudokuConfig.GetConfig(SudokuType.FOUR_BY_FOUR);
+			SudokuBoard.Board.Board board = new(sudokuGridConfig);
+
+			int[,] grid = new int[,]
+			{
+				{ 1, 2, 3, 0 },
+				{ 4, 3, 2, 1 },
+				{ 2, 1, 4, 3 },
+				{ 3, 4, 1, 2 },
+			};
+			BoardHelper.BuildFromInt(board, grid, sudokuGridConfig);
+
+			ICell userCell = board.GetCell(0, 3);
+			board.PlaceValue(1, userCell.Row, userCell.Column);
+
+			Assert.That(board.Validate(), Is.False);
+		}
+
+		[TestCase]
+		public void Input_Numbers_Correct_On_Init()
+		{
+			SudokuGridConfig sudokuGridConfig = SudokuConfig.GetConfig(SudokuType.FOUR_BY_FOUR);
+			SudokuBoard.Board.Board board = new(sudokuGridConfig);
+
+			int[,] grid = new int[,]
+			{
+				{ 1, 2, 3, 4 },
+				{ 4, 3, 2, 1 },
+				{ 2, 1, 4, 3 },
+				{ 3, 4, 1, 2 },
+			};
+			BoardHelper.BuildFromInt(board, grid, sudokuGridConfig);
+			InputNumbers inputNumbers = new InputNumbers(board.GetRowsLength());
 
 			Assert.That(inputNumbers.AvailableNumbers.Count, Is.EqualTo(board.GetRowsLength()));
 		}
 
-		[TestCaseSource(nameof(SudokuTypes))]
-		public void Are_Input_Numbers_Correct_After_Clean_Cell(SudokuType sudokuType)
+		[TestCase]
+		public void Are_Input_Numbers_Correct_After_Clean_Cell()
 		{
-			SudokuGridConfig sudokuGridConfig = SudokuConfig.GetConfig(sudokuType);
-			IBoardSolver boardSolver = new BoardSolver(sudokuGridConfig);
-			SudokuBoard.Board.Board board = new SudokuBoard.Board.Board(sudokuGridConfig, boardSolver);
-			IBoardGenerator boardGenerator = new RandomBoardGenerator(sudokuGridConfig, boardSolver, board.CanPlaceValue, board.IsFullFilled);
-			InputNumbers inputNumbers = new InputNumbers(board.GetRowsLength());
-			int numberToRemove = 1;
+			SudokuGridConfig sudokuGridConfig = SudokuConfig.GetConfig(SudokuType.FOUR_BY_FOUR);
+			SudokuBoard.Board.Board board = new(sudokuGridConfig);
 
-			boardGenerator.Generate(board);
-
-			foreach (ICell cell in board.GetAllCellsWithNumber(numberToRemove))
+			int[,] grid = new int[,]
 			{
-				board.SetCellAsEmpty(cell);
-			}
+				{ 1, 2, 3, 4 },
+				{ 4, 3, 2, 0 },
+				{ 2, 0, 4, 3 },
+				{ 3, 4, 1, 2 },
+			};
+			BoardHelper.BuildFromInt(board, grid, sudokuGridConfig);
+			InputNumbers inputNumbers = new InputNumbers(board.GetRowsLength());
 
 			for (int i = 1; i <= board.GetRowsLength(); i++)
 			{

@@ -9,10 +9,10 @@ namespace SudokuBoard.BoardGenerator
 	{
 		private readonly SudokuGridConfig _sudokuGridConfig;
 		private readonly IBoardSolver _boardSolver;
-		private readonly Func<int, ICell, bool> _canPlaceValue;
+		private readonly Func<int, int, int, bool> _canPlaceValue;
 		private readonly Func<bool> _isFullFilled;
 
-		public RandomBoardGenerator(SudokuGridConfig sudokuGridConfig, IBoardSolver boardSolver, Func<int, ICell, bool> canPlaceValue, Func<bool> isFullFilled)
+		public RandomBoardGenerator(SudokuGridConfig sudokuGridConfig, IBoardSolver boardSolver, Func<int, int, int, bool> canPlaceValue, Func<bool> isFullFilled)
 		{
 			_sudokuGridConfig = sudokuGridConfig;
 			_boardSolver = boardSolver;
