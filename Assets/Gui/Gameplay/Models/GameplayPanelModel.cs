@@ -15,8 +15,6 @@ namespace Gui.Gameplay.Models
 		public event Action Refresh;
 
 		public int Rows => _sudokuGridConfig.Rows;
-		public int SubGridColumns => _sudokuGridConfig.SubGridColumns;
-		public int SubGridRows => _sudokuGridConfig.SubGridRows;
 		public IReadOnlyList<int> AllNumbers => _inputNumbers.AllNumbers;
 		public IEnumerable<int> AvailableNumbers => _inputNumbers.AvailableNumbers;
 		public IReadOnlyList<CellDisplayData> CellDisplayDataList => _cellDisplayDataList;
@@ -33,8 +31,6 @@ namespace Gui.Gameplay.Models
 
 		private ICell _selectedCell => _board.GetCell(_selectedCellIndex);
 		private int _selectedCellIndex;
-
-		public List<SubBoxDisplay> SubBoxDisplays; //todo
 
 		public GameplayPanelModel(
 			ApplicationNavigation applicationNavigation,
@@ -53,7 +49,6 @@ namespace Gui.Gameplay.Models
 			_cellDisplayDataList = new List<CellDisplayData>(new CellDisplayData[_board.GetRowsLength() * _board.GetRowsLength()]);
 
 			Random random = new();
-			// _selectedCellIndex = _board.CellsArray[random.Next(0, _sudokuGridConfig.Rows), random.Next(0, _sudokuGridConfig.Rows)].Index;
 			_selectedCellIndex = random.Next(0, _cellDisplayDataList.Count);
 
 			_inputNumbers = new InputNumbers(Rows);
@@ -74,8 +69,7 @@ namespace Gui.Gameplay.Models
 		{
 			_selectedCellIndex = selectedCellIndex;
 
-			RefreshCellDisplays();
-			Refresh?.Invoke();
+			RefreshState();
 		}
 
 		public void PlaceNumber(int number)
@@ -86,12 +80,14 @@ namespace Gui.Gameplay.Models
 				return;
 			}
 
-			_board.PlaceValue(number, _selectedCell.Row, _selectedCell.Column);
-
-			if (!_board.Validate())
+			/*
+			if (!_board.CanPlaceValue(_selectedCell.Row, _selectedCell.Column, number))
 			{
 				_mistakeHandler.Increase();
 			}
+			*/
+
+			_board.PlaceValue(number, _selectedCell.Row, _selectedCell.Column);
 
 			bool isGameEnd = (_board.IsFullFilled() && _board.Validate()) || _mistakeHandler.MaxedOut;
 			if (isGameEnd)
@@ -99,9 +95,7 @@ namespace Gui.Gameplay.Models
 				_applicationNavigation.OpenMainMenu();
 			}
 
-			RefreshAvailableInputNumbers();
-			RefreshCellDisplays();
-			Refresh?.Invoke();
+			RefreshState();
 		}
 
 		public void AutoSolveBoard()
@@ -109,15 +103,18 @@ namespace Gui.Gameplay.Models
 			IBoardSolver boardSolver = new ExistedBoardSolver(_sudokuGridConfig);
 			boardSolver.Solve(_board, _board.CanPlaceValue, _board.IsFullFilled);
 
-			RefreshAvailableInputNumbers();
-			RefreshCellDisplays();
-			Refresh?.Invoke();
+			RefreshState();
 		}
 
 		public void CleanCell()
 		{
 			_board.CleanCell(_selectedCell.Row, _selectedCell.Column);
 
+			RefreshState();
+		}
+
+		private void RefreshState()
+		{
 			RefreshAvailableInputNumbers();
 			RefreshCellDisplays();
 			Refresh?.Invoke();
@@ -176,26 +173,6 @@ namespace Gui.Gameplay.Models
 						cell is SolverCell);
 				}
 			}
-		}
-	}
-
-	public struct SubBoxDisplay
-	{
-		public int Number;
-		// public int Row;
-		// public int Column;
-		public int Rows;
-		public int Columns;
-		public List<CellDisplayData> CellDisplayDatas;
-
-		public SubBoxDisplay(int number, int rows, int columns)
-		{
-			Number = number;
-			// Row = row;
-			// Column = column;
-			Rows = rows;
-			Columns = columns;
-			CellDisplayDatas = new List<CellDisplayData>();
 		}
 	}
 

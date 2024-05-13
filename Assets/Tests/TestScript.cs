@@ -21,7 +21,7 @@ namespace Tests
 			IBoardGenerator boardGenerator = new RandomBoardGenerator(sudokuGridConfig, boardSolver, board.CanPlaceValue, board.IsFullFilled);
 			boardGenerator.Generate(board);
 
-			RemoveRandomCellsHandler.RemoveRandomCellsFromBoard(board, 10, board.SetCellAsEmpty);
+			RemoveRandomCellsHandler.RemoveRandomCellsFromBoard(board, 10);
 			bool solved = boardSolver.Solve(board, board.CanPlaceValue, board.IsFullFilled);
 
 			Assert.That(solved, Is.True);
@@ -54,7 +54,7 @@ namespace Tests
 			BoardHelper.BuildFromInt(board, grid, sudokuGridConfig);
 
 			int cellsToRemove = 5;
-			RemoveRandomCellsHandler.RemoveRandomCellsFromBoard(board, cellsToRemove, board.SetCellAsEmpty);
+			RemoveRandomCellsHandler.RemoveRandomCellsFromBoard(board, cellsToRemove);
 
 			int emptyCells = 0;
 			for (int row = 0; row < board.GetRowsLength(); row++)
@@ -138,6 +138,7 @@ namespace Tests
 				{ 3, 4, 1, 2 },
 			};
 			BoardHelper.BuildFromInt(board, grid, sudokuGridConfig);
+			board.SaveSolvedBoard();
 
 			ICell userCell = board.GetCell(0, 3);
 			board.PlaceValue(4, userCell.Row, userCell.Column);

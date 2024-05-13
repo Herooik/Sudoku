@@ -5,7 +5,7 @@ namespace SudokuBoard
 {
 	public static class RemoveRandomCellsHandler
 	{ 
-		public static void RemoveRandomCellsFromBoard(Board.Board sudokuBoard, int cellsToRemove, Action<int, int, int, int> setCellAsEmpty)
+		public static void RemoveRandomCellsFromBoard(Board.Board sudokuBoard, int cellsToRemove)
 		{
 			Assert.AreNotEqual(cellsToRemove, 0);
 
@@ -24,7 +24,7 @@ namespace SudokuBoard
 					cellToRemove = sudokuBoard.GetCell(row, column);
 				}
 
-				setCellAsEmpty?.Invoke(cellToRemove.Index, cellToRemove.GroupBox, cellToRemove.Row, cellToRemove.Column);
+				sudokuBoard.SetCellAsEmpty(cellToRemove.Index, cellToRemove.GroupBox, cellToRemove.Row, cellToRemove.Column);
 			}
 		}
 	}

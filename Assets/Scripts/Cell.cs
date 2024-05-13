@@ -61,7 +61,6 @@ public class UserCell : ICell
 	public int Column { get; }
 	public int Number { get; private set; }
 
-	// public bool IsFilledGood => Number == _expectedNumber;
 	public bool IsFilledGood => _isGood;
 	public bool IsSolverCell => false;
 

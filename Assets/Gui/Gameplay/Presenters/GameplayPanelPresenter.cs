@@ -26,7 +26,7 @@ namespace Gui.Gameplay.Presenters
 			_difficultyText.SetText($"Difficulty\n{_model.Difficulty}");
 
 			_returnButton.onClick.AddListener(_model.ReturnToMenu);
-			_boardPanelComponent.Initialize(_model.Rows, _model.SubGridRows, _model.SubGridColumns, _model.SubBoxDisplays, _model.SelectCell, _model.CellDisplayDataList);
+			_boardPanelComponent.Initialize(_model.Rows, _model.SelectCell, _model.CellDisplayDataList);
 			_inputNumbersComponent.Initialize(_model.AllNumbers, _model.PlaceNumber);
 			_autoSolveButton.onClick.AddListener(_model.AutoSolveBoard);
 			_cleanButton.onClick.AddListener(_model.CleanCell);

@@ -8,6 +8,7 @@ namespace SudokuBoard.Board
 	{
 		private readonly SudokuGridConfig _sudokuGridConfig;
 		private readonly ICell[,] _cellsArray;
+		private readonly ICell[,] _solvedCellsArray;
 
 		public Board(SudokuGridConfig sudokuGridConfig)
 		{
@@ -18,7 +19,7 @@ namespace SudokuBoard.Board
 		public void RemoveRandomCellsFromBoard(int cellsToRemove)
 		{
 			// todo move to other place
-			RemoveRandomCellsHandler.RemoveRandomCellsFromBoard(this, cellsToRemove, SetCellAsEmpty);
+			RemoveRandomCellsHandler.RemoveRandomCellsFromBoard(this, cellsToRemove);
 		}
 
 		public bool IsFullFilled()
@@ -63,7 +64,7 @@ namespace SudokuBoard.Board
 			ICell targetCell = _cellsArray[cellRow, cellColumn];
 			if (targetCell.IsSolverCell)
 			{
-				Debug.LogWarning("CAN'T PLACE NUMBER ON GENERATED CELL");
+				Debug.LogWarning("CAN'T CLEAN NUMBER ON GENERATED CELL");
 				return;
 			}
 
@@ -181,18 +182,10 @@ namespace SudokuBoard.Board
 			return _cellsArray.GetLength(0);
 		}
 
-		public IEnumerable<ICell> GetAllCellsWithNumber(int numberToRemove)
+		
+		public void SaveSolvedBoard()
 		{
-			List<ICell> cells = new();
-			foreach (ICell cell in _cellsArray)
-			{
-				if (cell.Number == numberToRemove)
-				{
-					cells.Add(cell);
-				}
-			}
-
-			return cells;
+			throw new System.NotImplementedException();
 		}
 	}
 }
