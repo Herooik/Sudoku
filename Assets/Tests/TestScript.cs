@@ -138,7 +138,6 @@ namespace Tests
 				{ 3, 4, 1, 2 },
 			};
 			BoardHelper.BuildFromInt(board, grid, sudokuGridConfig);
-			board.SaveSolvedBoard();
 
 			ICell userCell = board.GetCell(0, 3);
 			board.PlaceValue(4, userCell.Row, userCell.Column);

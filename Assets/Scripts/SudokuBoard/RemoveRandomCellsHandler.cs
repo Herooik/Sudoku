@@ -11,6 +11,7 @@ namespace SudokuBoard
 
 			Random random = new();
 			int rows = sudokuBoard.GetRowsLength();
+			sudokuBoard.RemovedCells.Clear();
 
 			for (int i = 0; i < cellsToRemove; i++)
 			{
@@ -24,6 +25,7 @@ namespace SudokuBoard
 					cellToRemove = sudokuBoard.GetCell(row, column);
 				}
 
+				sudokuBoard.RemovedCells.Add((cellToRemove.Index, cellToRemove.Number));
 				sudokuBoard.SetCellAsEmpty(cellToRemove.Index, cellToRemove.GroupBox, cellToRemove.Row, cellToRemove.Column);
 			}
 		}

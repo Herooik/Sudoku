@@ -61,16 +61,12 @@ public class UserCell : ICell
 	public int Column { get; }
 	public int Number { get; private set; }
 
-	public bool IsFilledGood => _isGood;
+	public bool IsFilledGood { get; }
 	public bool IsSolverCell => false;
 
-	private readonly int _expectedNumber;
-	private bool _isGood;
-
-	public UserCell(int index, int groupBox, int row, int column, int number, int expectedNumber, bool isGood)
+	public UserCell(int index, int groupBox, int row, int column, int number, bool isGood)
 	{
-		_expectedNumber = expectedNumber;
-		_isGood = isGood;
+		IsFilledGood = isGood;
 
 		Index = index;
 		GroupBox = groupBox;

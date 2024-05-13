@@ -8,18 +8,13 @@ namespace SudokuBoard.Board
 	{
 		private readonly SudokuGridConfig _sudokuGridConfig;
 		private readonly ICell[,] _cellsArray;
-		private readonly ICell[,] _solvedCellsArray;
+
+		public readonly List<(int, int)> RemovedCells = new();
 
 		public Board(SudokuGridConfig sudokuGridConfig)
 		{
 			_sudokuGridConfig = sudokuGridConfig;
 			_cellsArray = new ICell[sudokuGridConfig.Rows, sudokuGridConfig.Rows];
-		}
-
-		public void RemoveRandomCellsFromBoard(int cellsToRemove)
-		{
-			// todo move to other place
-			RemoveRandomCellsHandler.RemoveRandomCellsFromBoard(this, cellsToRemove);
 		}
 
 		public bool IsFullFilled()
@@ -56,7 +51,15 @@ namespace SudokuBoard.Board
 				return;
 			}
 
-			SetCellAsUser(targetCell.Index, targetCell.GroupBox, targetCell.Row, targetCell.Column, value, value);
+			foreach ((int, int) removedCell in RemovedCells)
+			{
+				if (removedCell.Item1 == targetCell.Index)
+				{
+					bool good = removedCell.Item2 == value;
+					SetCellAsUser(targetCell.Index, targetCell.GroupBox, targetCell.Row, targetCell.Column, value, good);
+					break;
+				}
+			}
 		}
 
 		public void CleanCell(int cellRow, int cellColumn)
@@ -165,11 +168,9 @@ namespace SudokuBoard.Board
 			_cellsArray[row, column] = new SolverCell(index, groupBox, row, column, number);
 		}
 
-		public void SetCellAsUser(int index, int groupBox, int row, int column, int number, int expectedNumber)
+		public void SetCellAsUser(int index, int groupBox, int row, int column, int number, bool isGood)
 		{
-			//todo remove number and expectedNumber param
-			bool isGood = CanPlaceValue(row, column, number);
-			_cellsArray[row, column] = new UserCell(index, groupBox, row, column, number, expectedNumber, isGood);
+			_cellsArray[row, column] = new UserCell(index, groupBox, row, column, number, isGood);
 		}
 
 		public void SetCellAsEmpty(int index, int groupBox, int row, int column)
@@ -180,12 +181,6 @@ namespace SudokuBoard.Board
 		public int GetRowsLength()
 		{
 			return _cellsArray.GetLength(0);
-		}
-
-		
-		public void SaveSolvedBoard()
-		{
-			throw new System.NotImplementedException();
 		}
 	}
 }

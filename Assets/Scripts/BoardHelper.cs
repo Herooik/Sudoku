@@ -37,7 +37,6 @@ public static class BoardHelper
 				{
 					int index = CalculateIndex(row, rows, col);
 					int groupBox = GetGroupBoxNumber(row, col, subgridRows, subgridColumns);
-					// board.SetCellAsUser(index, groupBox, row, col, value, value);
 					board.SetCellAsSolver(index, groupBox, row, col, value);
 				}
 				else

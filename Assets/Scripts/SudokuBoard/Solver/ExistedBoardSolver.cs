@@ -38,7 +38,7 @@ namespace SudokuBoard.Solver
 								int groupBox = BoardHelper.GetGroupBoxNumber(row, col, subgridRows, subgridColumns);
 								int index = BoardHelper.CalculateIndex(row, rows, col);
 
-								board.SetCellAsUser(index, groupBox, row, col, number, number);
+								board.SetCellAsUser(index, groupBox, row, col, number, true);
 
 								if (isBoardFullFilled.Invoke())
 								{
