@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using System.Linq;
+using Board;
+using BoardGenerator;
+using Cells;
 using Configs;
 using NUnit.Framework;
-using SudokuBoard;
-using SudokuBoard.BoardGenerator;
-using SudokuBoard.MistakeHandler;
-using SudokuBoard.PlayerInputNumbers;
-using SudokuBoard.Solver;
+using PlayerInputNumbers;
+using Solver;
 
 namespace Tests
 {
@@ -17,7 +17,7 @@ namespace Tests
 		{
 			SudokuGridConfig sudokuGridConfig = SudokuConfig.GetConfig(sudokuType);
 			IBoardSolver boardSolver = new BoardSolver(sudokuGridConfig);
-			SudokuBoard.Board.Board board = new SudokuBoard.Board.Board(sudokuGridConfig);
+			Board.Board board = new Board.Board(sudokuGridConfig);
 			IBoardGenerator boardGenerator = new RandomBoardGenerator(sudokuGridConfig, boardSolver, board.CanPlaceValue, board.IsFullFilled);
 			boardGenerator.Generate(board);
 
@@ -42,7 +42,7 @@ namespace Tests
 		public void Remove_Cells_From_Board()
 		{
 			SudokuGridConfig sudokuGridConfig = SudokuConfig.GetConfig(SudokuType.FOUR_BY_FOUR);
-			SudokuBoard.Board.Board board = new(sudokuGridConfig);
+			Board.Board board = new(sudokuGridConfig);
 
 			int[,] grid = new int[,]
 			{
@@ -74,7 +74,7 @@ namespace Tests
 		public void Duplicate_Value_In_Row()
 		{
 			SudokuGridConfig sudokuGridConfig = SudokuConfig.GetConfig(SudokuType.FOUR_BY_FOUR);
-			SudokuBoard.Board.Board board = new(sudokuGridConfig);
+			Board.Board board = new(sudokuGridConfig);
 
 			int[,] grid = new int[,]
 			{
@@ -92,7 +92,7 @@ namespace Tests
 		public void Duplicate_Value_In_Column()
 		{
 			SudokuGridConfig sudokuGridConfig = SudokuConfig.GetConfig(SudokuType.FOUR_BY_FOUR);
-			SudokuBoard.Board.Board board = new(sudokuGridConfig);
+			Board.Board board = new(sudokuGridConfig);
 
 			int[,] grid = new int[,]
 			{
@@ -110,7 +110,7 @@ namespace Tests
 		public void Duplicate_Value_In_GroupBox()
 		{
 			SudokuGridConfig sudokuGridConfig = SudokuConfig.GetConfig(SudokuType.FOUR_BY_FOUR);
-			SudokuBoard.Board.Board board = new(sudokuGridConfig);
+			Board.Board board = new(sudokuGridConfig);
 
 			int[,] grid = new int[,]
 			{
@@ -128,7 +128,7 @@ namespace Tests
 		public void Place_Valid_Value()
 		{
 			SudokuGridConfig sudokuGridConfig = SudokuConfig.GetConfig(SudokuType.FOUR_BY_FOUR);
-			SudokuBoard.Board.Board board = new(sudokuGridConfig);
+			Board.Board board = new(sudokuGridConfig);
 
 			int[,] grid = new int[,]
 			{
@@ -150,7 +150,7 @@ namespace Tests
 		public void Place_Invalid_Value()
 		{
 			SudokuGridConfig sudokuGridConfig = SudokuConfig.GetConfig(SudokuType.FOUR_BY_FOUR);
-			SudokuBoard.Board.Board board = new(sudokuGridConfig);
+			Board.Board board = new(sudokuGridConfig);
 
 			int[,] grid = new int[,]
 			{
@@ -171,7 +171,7 @@ namespace Tests
 		public void Input_Numbers_Correct_On_Init()
 		{
 			SudokuGridConfig sudokuGridConfig = SudokuConfig.GetConfig(SudokuType.FOUR_BY_FOUR);
-			SudokuBoard.Board.Board board = new(sudokuGridConfig);
+			Board.Board board = new(sudokuGridConfig);
 
 			int[,] grid = new int[,]
 			{
@@ -190,7 +190,7 @@ namespace Tests
 		public void Are_Input_Numbers_Correct_After_Clean_Cell()
 		{
 			SudokuGridConfig sudokuGridConfig = SudokuConfig.GetConfig(SudokuType.FOUR_BY_FOUR);
-			SudokuBoard.Board.Board board = new(sudokuGridConfig);
+			Board.Board board = new(sudokuGridConfig);
 
 			int[,] grid = new int[,]
 			{
@@ -216,7 +216,7 @@ namespace Tests
 		[Test]
 		public void Increase_Mistake()
 		{
-			MistakeHandler mistakeHandler = new MistakeHandler(0, 3);
+			MistakeHandler.MistakeHandler mistakeHandler = new MistakeHandler.MistakeHandler(0, 3);
 
 			mistakeHandler.Increase();
 
@@ -226,7 +226,7 @@ namespace Tests
 		[Test]
 		public void Increase_Mistake_End_Game()
 		{
-			MistakeHandler mistakeHandler = new MistakeHandler(0, 3);
+			MistakeHandler.MistakeHandler mistakeHandler = new MistakeHandler.MistakeHandler(0, 3);
 
 			mistakeHandler.Increase();
 			mistakeHandler.Increase();
