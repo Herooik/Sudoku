@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using BoardGenerator;
 using Cells;
 using Configs;
 using PlayerInputNumbers;
-using ScriptableObjects;
-using Solver;
 
 namespace UI.Gameplay
 {
@@ -13,16 +10,16 @@ namespace UI.Gameplay
 	{
 		public event Action Refresh;
 
-		public int Rows => _sudokuGridConfig.Rows;
+		public int Rows => _board.GetRowsLength();
 		public IReadOnlyList<int> AllNumbers => _inputNumbers.AllNumbers;
 		public IEnumerable<int> AvailableNumbers => _inputNumbers.AvailableNumbers;
 		public IReadOnlyList<CellDisplayData> CellDisplayDataList => _cellDisplayDataList;
-		public SudokuDifficulty Difficulty { get; }
+		public SudokuDifficulty Difficulty => _selectedGameSettings.Difficulty;
 		public int CurrentMistakes => _mistakeHandler.Current;
 		public int MaxMistakes => _mistakeHandler.Max;
 
-		private readonly ApplicationNavigation _applicationNavigation;
-		private readonly SudokuGridConfig _sudokuGridConfig;
+		private readonly GameManager _gameManager;
+		private readonly SaveManager _saveManager;
 		private readonly Board.Board _board;
 		private readonly List<CellDisplayData> _cellDisplayDataList;
 		private readonly InputNumbers _inputNumbers;
@@ -30,20 +27,18 @@ namespace UI.Gameplay
 
 		private ICell _selectedCell => _board.GetCell(_selectedCellIndex);
 		private int _selectedCellIndex;
+		private SelectedGameSettings _selectedGameSettings;
 
 		public GameplayPanelModel(
-			ApplicationNavigation applicationNavigation,
-			DifficultyRulesSettings difficultyRulesSettings,
-			SelectedGameSettings selectedGameSettings)
+			GameManager gameManager,
+			SelectedGameSettings selectedGameSettings,
+			SaveManager saveManager,
+			Board.Board board)
 		{
-			_applicationNavigation = applicationNavigation;
-			_sudokuGridConfig = SudokuConfig.GetConfig(selectedGameSettings.SudokuType);
-
-			IBoardSolver boardSolver = new BoardSolver(_sudokuGridConfig);
-			_board = new Board.Board(_sudokuGridConfig);
-			IBoardGenerator boardGenerator = new RandomBoardGenerator(_sudokuGridConfig, boardSolver, _board.CanPlaceValue, _board.IsFullFilled);
-			boardGenerator.Generate(_board);
-			RemoveRandomCellsHandler.RemoveRandomCellsFromBoard(_board, difficultyRulesSettings.GetCellsToRemove(selectedGameSettings.SudokuType, selectedGameSettings.Difficulty));
+			_gameManager = gameManager;
+			_selectedGameSettings = selectedGameSettings;
+			_saveManager = saveManager;
+			_board = board;
 
 			_cellDisplayDataList = new List<CellDisplayData>(new CellDisplayData[_board.GetRowsLength() * _board.GetRowsLength()]);
 
@@ -53,15 +48,13 @@ namespace UI.Gameplay
 			_inputNumbers = new InputNumbers(Rows);
 			_mistakeHandler = new MistakeHandler.MistakeHandler(0, 3); // todo: move max mistakes to global settings
 
-			Difficulty = selectedGameSettings.Difficulty;
-
 			RefreshAvailableInputNumbers();
 			RefreshCellDisplays();
 		}
 
 		public void ReturnToMenu()
 		{
-			_applicationNavigation.OpenMainMenu();
+			_gameManager.OpenMainMenuPanel();
 		}
 
 		public void SelectCell(int selectedCellIndex)
@@ -89,16 +82,19 @@ namespace UI.Gameplay
 			bool isGameEnd = _board.IsFullFilled() || _mistakeHandler.MaxedOut;
 			if (isGameEnd)
 			{
-				_applicationNavigation.OpenMainMenu();
+				_gameManager.EndGame();
 			}
+
+			// IEnumerable<ICell> cells = _board.GetAllCells();
+			// _saveManager.Save(_selectedGameSettings, cells);
 
 			RefreshState();
 		}
 
 		public void AutoSolveBoard()
 		{
-			IBoardSolver boardSolver = new ExistedBoardSolver(_sudokuGridConfig);
-			boardSolver.Solve(_board, _board.CanPlaceValue, _board.IsFullFilled);
+			// IBoardSolver boardSolver = new ExistedBoardSolver(_sudokuGridConfig);
+			// boardSolver.Solve(_board, _board.CanPlaceValue, _board.IsFullFilled);
 
 			RefreshState();
 		}
@@ -106,6 +102,9 @@ namespace UI.Gameplay
 		public void CleanCell()
 		{
 			_board.CleanCell(_selectedCell.Row, _selectedCell.Column);
+
+			// IEnumerable<ICell> cells = _board.GetAllCells();
+			// _saveManager.Save(_selectedGameSettings, cells);
 
 			RefreshState();
 		}
@@ -162,7 +161,6 @@ namespace UI.Gameplay
 
 					_cellDisplayDataList[cell.Index] = new CellDisplayData(cell.Row,
 						cell.Column,
-						cell.GroupBox,
 						state,
 						cell.IsFilledGood,
 						cell.Number,
@@ -186,7 +184,6 @@ namespace UI.Gameplay
 	{
 		public readonly int Row;
 		public readonly int Column;
-		public readonly int GroupBox;
 		public readonly State State;
 		public readonly bool IsFilledGood;
 		public readonly int Number;
@@ -198,7 +195,6 @@ namespace UI.Gameplay
 
 		public CellDisplayData(int row,
 			int column,
-			int groupBox,
 			State state,
 			bool isFilledGood,
 			int number,
@@ -207,7 +203,6 @@ namespace UI.Gameplay
 		{
 			Row = row;
 			Column = column;
-			GroupBox = groupBox;
 			State = state;
 			IsFilledGood = isFilledGood;
 			Number = number;

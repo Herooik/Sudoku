@@ -7,6 +7,7 @@ namespace UI.Menu.Presenters
 {
 	public class MainMenuPanelPresenter : MonoBehaviour
 	{
+		[SerializeField] private Button _continueButton;
 		[SerializeField] private Button _startNewGameButton;
 		[SerializeField] private TMP_Dropdown _difficultyDropdown;
 		[SerializeField] private TMP_Dropdown _typeDropdown;
@@ -17,6 +18,7 @@ namespace UI.Menu.Presenters
 		{
 			_model = model;
 
+			_continueButton.onClick.AddListener(() => _model.ContinueGame());
 			_startNewGameButton.onClick.AddListener(() => _model.StartNewGame());
 
 			_difficultyDropdown.options = new List<TMP_Dropdown.OptionData>();

@@ -11,17 +11,18 @@ namespace UI.Menu
 		public List<string> Types => _types.Select(sudokuType => sudokuType.ToString()).ToList();
 		public int SelectedType { get; private set; }
 
-		private readonly ApplicationNavigation _applicationNavigation;
+		private readonly GameManager _gameManager;
 		private readonly SelectedGameSettings _selectedGameSettings;
 
 		private readonly List<SudokuDifficulty> _difficulties;
 		private readonly List<SudokuType> _types;
 
 		public MainMenuPanelModel(
-			ApplicationNavigation applicationNavigation,
-			SelectedGameSettings selectedGameSettings)
+			GameManager gameManager,
+			SelectedGameSettings selectedGameSettings,
+			SaveManager saveManager)
 		{
-			_applicationNavigation = applicationNavigation;
+			_gameManager = gameManager;
 			_selectedGameSettings = selectedGameSettings;
 
 			_difficulties = new List<SudokuDifficulty>()
@@ -59,16 +60,21 @@ namespace UI.Menu
 			}
 		}
 
+		public void ContinueGame()
+		{
+			_gameManager.ContinueGame();
+		}
+
 		public void StartNewGame()
 		{
-			_applicationNavigation.OpenGameplay();
+			_gameManager.NewGame();
 		}
 
 		public void ChooseDifficulty(int diffOption)
 		{
 			_selectedGameSettings.Difficulty = _difficulties[diffOption];
 		}
-		
+
 		public void ChooseType(int diffOption)
 		{
 			_selectedGameSettings.SudokuType = _types[diffOption];
