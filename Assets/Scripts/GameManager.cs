@@ -1,5 +1,6 @@
 using BoardGenerator;
 using Configs;
+using Saves;
 using ScriptableObjects;
 using Solver;
 using UI.Gameplay;
@@ -8,6 +9,7 @@ using UI.Menu;
 using UI.Menu.Presenters;
 using UnityEngine;
 
+//todo refactor this to seperate classes: PanelsManager etc.
 public class GameManager : MonoBehaviour
 {
 	[SerializeField] private Transform _panelHolder;
@@ -19,10 +21,13 @@ public class GameManager : MonoBehaviour
 	private readonly SaveManager _saveManager = new();
 
 	private GameObject _currentPanel;
+	private SaveManager.SaveData _currentSave;
 
 	private void Start()
 	{
 		_saveManager.Initialize();
+		_currentSave = _saveManager.Load();
+
 		OpenMainMenuPanel();
 	}
 
@@ -31,7 +36,7 @@ public class GameManager : MonoBehaviour
 		if (_currentPanel != null)
 			Destroy(_currentPanel);
 
-		MainMenuPanelModel model = new MainMenuPanelModel(this, _selectedGameSettings, _saveManager);
+		MainMenuPanelModel model = new MainMenuPanelModel(this, _selectedGameSettings, _currentSave);
 		MainMenuPanelPresenter panel = Instantiate(_mainMenuPanelPresenter, _panelHolder);
 		panel.GetComponent<MainMenuPanelPresenter>().Bind(model);
 
@@ -41,11 +46,11 @@ public class GameManager : MonoBehaviour
 	public void NewGame()
 	{
 		SudokuGridConfig sudokuGridConfig = SudokuConfig.GetConfig(_selectedGameSettings.SudokuType);
-
 		IBoardSolver boardSolver = new BoardSolver(sudokuGridConfig);
 		Board.Board board = new Board.Board(sudokuGridConfig);
 		IBoardGenerator boardGenerator = new RandomBoardGenerator(sudokuGridConfig, boardSolver, board.CanPlaceValue, board.IsFullFilled);
 		boardGenerator.Generate(board);
+
 		RemoveRandomCellsHandler.RemoveRandomCellsFromBoard(board, _difficultyRulesSettings.GetCellsToRemove(_selectedGameSettings.SudokuType, _selectedGameSettings.Difficulty));
 
 		OpenGameplayPanel(board);
@@ -53,10 +58,15 @@ public class GameManager : MonoBehaviour
 
 	public void ContinueGame()
 	{
-		SaveManager.SaveData saveData = _saveManager.Load();
-		_selectedGameSettings = saveData.SelectedGameSettings;
+		_currentSave = _saveManager.Load();
+		_selectedGameSettings = _currentSave.SelectedGameSettings;
 
-		OpenGameplayPanel(null);
+		SudokuGridConfig sudokuGridConfig = SudokuConfig.GetConfig(_selectedGameSettings.SudokuType);
+		Board.Board board = new Board.Board(sudokuGridConfig);
+		IBoardGenerator boardGenerator = new BoardFromSaveFileGenerator(sudokuGridConfig, _currentSave.Cells);
+		boardGenerator.Generate(board);
+
+		OpenGameplayPanel(board);
 	}
 
 	public void EndGame()

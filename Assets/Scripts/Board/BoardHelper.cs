@@ -11,7 +11,7 @@ namespace Board
 			return groupBox;
 		}
 
-		public static int CalculateIndex(int row, int rows, int column) //todo flip row with rows parameter
+		public static int CalculateIndex(int row, int column, int rows)
 		{
 			return row * rows + column;
 		}
@@ -28,16 +28,14 @@ namespace Board
 				for (int col = 0; col < rows; col++)
 				{
 					int value = grid[row, col];
+					int index = CalculateIndex(row, col, rows);
+					int groupBox = GetGroupBoxNumber(row, col, subgridRows, subgridColumns);
 					if (value <= 0)
 					{
-						int index = CalculateIndex(row, rows, col);
-						int groupBox = GetGroupBoxNumber(row, col, subgridRows, subgridColumns);
 						board.SetCellAsEmpty(index, groupBox, row, col);
 					}
 					else if (value <= rows)
 					{
-						int index = CalculateIndex(row, rows, col);
-						int groupBox = GetGroupBoxNumber(row, col, subgridRows, subgridColumns);
 						board.SetCellAsSolver(index, groupBox, row, col, value);
 					}
 					else

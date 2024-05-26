@@ -8,7 +8,7 @@ namespace Cells
 		public int Column { get; }
 		public int Number { get; }
 
-		public bool IsFilledGood => true; 
+		public bool IsPlacedGood => true; 
 		public bool IsSolverCell => true;
 
 		public SolverCell(int index, int groupBox, int row, int column, int number)

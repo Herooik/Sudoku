@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Cells;
 using Configs;
 using PlayerInputNumbers;
+using Saves;
 
 namespace UI.Gameplay
 {
@@ -19,6 +20,7 @@ namespace UI.Gameplay
 		public int MaxMistakes => _mistakeHandler.Max;
 
 		private readonly GameManager _gameManager;
+		private readonly SelectedGameSettings _selectedGameSettings;
 		private readonly SaveManager _saveManager;
 		private readonly Board.Board _board;
 		private readonly List<CellDisplayData> _cellDisplayDataList;
@@ -27,7 +29,6 @@ namespace UI.Gameplay
 
 		private ICell _selectedCell => _board.GetCell(_selectedCellIndex);
 		private int _selectedCellIndex;
-		private SelectedGameSettings _selectedGameSettings;
 
 		public GameplayPanelModel(
 			GameManager gameManager,
@@ -54,6 +55,9 @@ namespace UI.Gameplay
 
 		public void ReturnToMenu()
 		{
+			List<SerializableCell> cells = _board.GetSerializableCells();
+			_saveManager.Save(_selectedGameSettings, cells);
+
 			_gameManager.OpenMainMenuPanel();
 		}
 
@@ -74,7 +78,7 @@ namespace UI.Gameplay
 
 			_board.PlaceValue(number, _selectedCell.Row, _selectedCell.Column);
 
-			if (!_board.GetCell(_selectedCell.Row, _selectedCell.Column).IsFilledGood)
+			if (!_board.GetCell(_selectedCell.Row, _selectedCell.Column).IsPlacedGood)
 			{
 				_mistakeHandler.Increase();
 			}
@@ -85,8 +89,8 @@ namespace UI.Gameplay
 				_gameManager.EndGame();
 			}
 
-			// IEnumerable<ICell> cells = _board.GetAllCells();
-			// _saveManager.Save(_selectedGameSettings, cells);
+			List<SerializableCell> cells = _board.GetSerializableCells();
+			_saveManager.Save(_selectedGameSettings, cells);
 
 			RefreshState();
 		}
@@ -103,8 +107,8 @@ namespace UI.Gameplay
 		{
 			_board.CleanCell(_selectedCell.Row, _selectedCell.Column);
 
-			// IEnumerable<ICell> cells = _board.GetAllCells();
-			// _saveManager.Save(_selectedGameSettings, cells);
+			List<SerializableCell> cells = _board.GetSerializableCells();
+			_saveManager.Save(_selectedGameSettings, cells);
 
 			RefreshState();
 		}
@@ -162,7 +166,7 @@ namespace UI.Gameplay
 					_cellDisplayDataList[cell.Index] = new CellDisplayData(cell.Row,
 						cell.Column,
 						state,
-						cell.IsFilledGood,
+						cell.IsPlacedGood,
 						cell.Number,
 						cell.IsEmpty,
 						cell is SolverCell);

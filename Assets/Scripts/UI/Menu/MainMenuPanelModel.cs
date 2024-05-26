@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Configs;
+using Saves;
 
 namespace UI.Menu
 {
@@ -10,20 +11,23 @@ namespace UI.Menu
 		public int SelectedDifficulty { get; private set; }
 		public List<string> Types => _types.Select(sudokuType => sudokuType.ToString()).ToList();
 		public int SelectedType { get; private set; }
+		public bool IsSaveExist => _saveData != null;
 
 		private readonly GameManager _gameManager;
 		private readonly SelectedGameSettings _selectedGameSettings;
 
 		private readonly List<SudokuDifficulty> _difficulties;
 		private readonly List<SudokuType> _types;
+		private readonly SaveManager.SaveData _saveData;
 
 		public MainMenuPanelModel(
 			GameManager gameManager,
 			SelectedGameSettings selectedGameSettings,
-			SaveManager saveManager)
+			SaveManager.SaveData saveData)
 		{
 			_gameManager = gameManager;
 			_selectedGameSettings = selectedGameSettings;
+			_saveData = saveData;
 
 			_difficulties = new List<SudokuDifficulty>()
 			{

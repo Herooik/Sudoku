@@ -9,7 +9,7 @@ namespace Cells
 		public int Number { get; }
 
 		public bool IsEmpty => true;
-		public bool IsFilledGood => false;
+		public bool IsPlacedGood => false;
 		public bool IsSolverCell => false;
 
 		public EmptyCell(int index, int groupBox, int row, int column)

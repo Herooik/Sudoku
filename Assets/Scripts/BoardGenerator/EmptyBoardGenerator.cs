@@ -23,7 +23,7 @@ namespace BoardGenerator
 				for (int column = 0; column < rows; column++)
 				{
 					int groupBox = BoardHelper.GetGroupBoxNumber(row, column, subgridRows, subgridColumns);
-					int index = BoardHelper.CalculateIndex(row, rows, column);
+					int index = BoardHelper.CalculateIndex(row, column, rows);
 					board.SetCellAsEmpty(index, groupBox, row, column);
 				}
 			}

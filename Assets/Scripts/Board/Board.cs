@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Cells;
 using Configs;
+using Saves;
 using UnityEngine;
 
 namespace Board
@@ -34,7 +35,7 @@ namespace Board
 			int count = 0;
 			foreach (ICell cell in _cellsArray)
 			{
-				if (cell.IsFilledGood && cell.Number == value)
+				if (cell.IsPlacedGood && cell.Number == value)
 				{
 					count++;
 				}
@@ -182,6 +183,33 @@ namespace Board
 		public int GetRowsLength()
 		{
 			return _cellsArray.GetLength(0);
+		}
+
+		public List<SerializableCell> GetSerializableCells()
+		{
+			List<SerializableCell> list = new();
+
+			for (int row = 0; row < GetRowsLength(); row++)
+			{
+				for (int col = 0; col < GetRowsLength(); col++)
+				{
+					ICell cell = GetCell(row, col);
+
+					CellType cellType = CellType.USER;
+					if (cell.IsSolverCell)
+					{
+						cellType = CellType.SOLVER;
+					}
+					else if (cell.IsEmpty)
+					{
+						cellType = CellType.EMPTY;
+					}
+	
+					list.Add(new SerializableCell(cellType, cell.Index, cell.GroupBox, cell.Row, cell.Column, cell.Number, cell.IsPlacedGood));
+				}
+			}
+
+			return list;
 		}
 	}
 }

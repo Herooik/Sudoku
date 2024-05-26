@@ -38,7 +38,7 @@ namespace Solver
 							if (canPlaceValue.Invoke(row, col, number))
 							{
 								int groupBox = BoardHelper.GetGroupBoxNumber(row, col, subgridRows, subgridColumns);
-								int index = BoardHelper.CalculateIndex(row, rows, col);
+								int index = BoardHelper.CalculateIndex(row, col, rows);
 
 								board.SetCellAsUser(index, groupBox, row, col, number, true);
 

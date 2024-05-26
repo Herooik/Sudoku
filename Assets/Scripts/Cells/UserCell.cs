@@ -8,12 +8,12 @@ namespace Cells
 		public int Column { get; }
 		public int Number { get; private set; }
 
-		public bool IsFilledGood { get; }
+		public bool IsPlacedGood { get; }
 		public bool IsSolverCell => false;
 
 		public UserCell(int index, int groupBox, int row, int column, int number, bool isGood)
 		{
-			IsFilledGood = isGood;
+			IsPlacedGood = isGood;
 
 			Index = index;
 			GroupBox = groupBox;
