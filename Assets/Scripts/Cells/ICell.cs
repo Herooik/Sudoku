@@ -12,11 +12,11 @@
 		bool IsPlacedGood { get; }
 		bool IsSolverCell { get; }
 	}
-}
 
-public enum CellType
-{
-	EMPTY,
-	SOLVER,
-	USER,
+	public enum CellType
+	{
+		EMPTY,
+		SOLVER,
+		USER,
+	}
 }

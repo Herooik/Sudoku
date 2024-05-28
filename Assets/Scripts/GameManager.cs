@@ -1,23 +1,17 @@
+using System;
 using BoardGenerator;
 using Configs;
 using Saves;
 using ScriptableObjects;
 using Solver;
-using UI.Gameplay;
-using UI.Gameplay.Presenters;
-using UI.Menu;
-using UI.Menu.Presenters;
 using UnityEngine;
 
-//todo refactor this to seperate classes: PanelsManager etc.
 public class GameManager : MonoBehaviour
 {
-	[SerializeField] private Transform _panelHolder;
-	[SerializeField] private GameplayPanelPresenter _gameplayPanelPresenter;
-	[SerializeField] private MainMenuPanelPresenter _mainMenuPanelPresenter;
+	[SerializeField] private PanelsManager _panelsManager;
 	[SerializeField] private DifficultyRulesSettings _difficultyRulesSettings;
 
-	private SelectedGameSettings _selectedGameSettings = new();
+	private readonly SelectedGameSettings _selectedGameSettings = new();
 	private readonly SaveManager _saveManager = new();
 
 	private GameObject _currentPanel;
@@ -28,19 +22,14 @@ public class GameManager : MonoBehaviour
 		_saveManager.Initialize();
 		_currentSave = _saveManager.Load();
 
+		_panelsManager.Initialize(this, _selectedGameSettings, _saveManager);
+
 		OpenMainMenuPanel();
 	}
 
 	public void OpenMainMenuPanel()
 	{
-		if (_currentPanel != null)
-			Destroy(_currentPanel);
-
-		MainMenuPanelModel model = new MainMenuPanelModel(this, _selectedGameSettings, _currentSave);
-		MainMenuPanelPresenter panel = Instantiate(_mainMenuPanelPresenter, _panelHolder);
-		panel.GetComponent<MainMenuPanelPresenter>().Bind(model);
-
-		_currentPanel = panel.gameObject;
+		_panelsManager.OpenMainMenuPanel();
 	}
 
 	public void NewGame()
@@ -59,7 +48,8 @@ public class GameManager : MonoBehaviour
 	public void ContinueGame()
 	{
 		_currentSave = _saveManager.Load();
-		_selectedGameSettings = _currentSave.SelectedGameSettings;
+		_selectedGameSettings.SudokuType = _currentSave.SudokuType;
+		_selectedGameSettings.Difficulty = _currentSave.SudokuDifficulty;
 
 		SudokuGridConfig sudokuGridConfig = SudokuConfig.GetConfig(_selectedGameSettings.SudokuType);
 		Board.Board board = new Board.Board(sudokuGridConfig);
@@ -77,13 +67,6 @@ public class GameManager : MonoBehaviour
 
 	private void OpenGameplayPanel(Board.Board board)
 	{
-		if (_currentPanel != null)
-			Destroy(_currentPanel);
-
-		GameplayPanelModel model = new GameplayPanelModel(this, _selectedGameSettings, _saveManager, board);
-		GameplayPanelPresenter panel = Instantiate(_gameplayPanelPresenter, _panelHolder);
-		panel.GetComponent<GameplayPanelPresenter>().Bind(model);
-
-		_currentPanel = panel.gameObject;
+		_panelsManager.OpenGameplayPanel(board);
 	}
 }

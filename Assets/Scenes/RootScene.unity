@@ -13,7 +13,7 @@ OcclusionCullingSettings:
 --- !u!104 &2
 RenderSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 9
+  serializedVersion: 10
   m_Fog: 0
   m_FogColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   m_FogMode: 3
@@ -44,7 +44,6 @@ RenderSettings:
 LightmapSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 12
-  m_GIWorkflowMode: 1
   m_GISettings:
     serializedVersion: 2
     m_BounceScale: 1
@@ -67,9 +66,6 @@ LightmapSettings:
     m_LightmapParameters: {fileID: 0}
     m_LightmapsBakeMode: 1
     m_TextureCompression: 1
-    m_FinalGather: 0
-    m_FinalGatherFiltering: 1
-    m_FinalGatherRayCount: 256
     m_ReflectionCompression: 2
     m_MixedBakeMode: 2
     m_BakeBackend: 0
@@ -135,6 +131,7 @@ GameObject:
   - component: {fileID: 188432378}
   - component: {fileID: 188432377}
   - component: {fileID: 188432376}
+  - component: {fileID: 188432380}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -224,6 +221,21 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &188432380
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 188432375}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9a62dfc7f4c47848313d303971b14f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _panelHolder: {fileID: 188432379}
+  _gameplayPanelPresenter: {fileID: 6739216676454183954, guid: d08d48052d41be046a4e1ff78f0f219c, type: 3}
+  _mainMenuPanelPresenter: {fileID: 7554847400677661896, guid: 4a07593a24161e74a9090c6f26190875, type: 3}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -360,6 +372,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e22f11e0c47bd2a41b752ed4d92b648a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _panelsManager: {fileID: 188432380}
   _panelHolder: {fileID: 188432379}
   _gameplayPanelPresenter: {fileID: 6739216676454183954, guid: d08d48052d41be046a4e1ff78f0f219c, type: 3}
   _mainMenuPanelPresenter: {fileID: 7554847400677661896, guid: 4a07593a24161e74a9090c6f26190875, type: 3}

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Configs;
 using UnityEngine;
 
 namespace Saves
@@ -14,9 +15,9 @@ namespace Saves
 			_saveFilePath = Path.Combine(Application.persistentDataPath, "Save.json");
 		}
 
-		public void Save(SelectedGameSettings selectedGameSettings, List<SerializableCell> cells)
+		public void Save(SudokuType sudokuType, SudokuDifficulty sudokuDifficulty, List<SerializableCell> cells)
 		{
-			SaveData data = new SaveData(selectedGameSettings, cells);
+			SaveData data = new SaveData(sudokuType, sudokuDifficulty, cells);
 			string json = JsonUtility.ToJson(data);
 			File.WriteAllText(_saveFilePath, json);
 			Debug.Log($"Json {json} saved to path {_saveFilePath}");
@@ -55,12 +56,14 @@ namespace Saves
 		[Serializable]
 		public class SaveData
 		{
-			public SelectedGameSettings SelectedGameSettings;
+			public SudokuType SudokuType;
+			public SudokuDifficulty SudokuDifficulty;
 			public List<SerializableCell> Cells;
 
-			public SaveData(SelectedGameSettings selectedGameSettings, List<SerializableCell> cells)
+			public SaveData(SudokuType sudokuType, SudokuDifficulty sudokuDifficulty, List<SerializableCell> cells)
 			{
-				SelectedGameSettings = selectedGameSettings;
+				SudokuType = sudokuType;
+				SudokuDifficulty = sudokuDifficulty;
 				Cells = cells;
 			}
 		}

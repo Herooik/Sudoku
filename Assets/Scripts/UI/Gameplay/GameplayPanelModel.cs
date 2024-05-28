@@ -22,24 +22,30 @@ namespace UI.Gameplay
 		private readonly GameManager _gameManager;
 		private readonly SelectedGameSettings _selectedGameSettings;
 		private readonly SaveManager _saveManager;
-		private readonly Board.Board _board;
-		private readonly List<CellDisplayData> _cellDisplayDataList;
-		private readonly InputNumbers _inputNumbers;
 		private readonly MistakeHandler.MistakeHandler _mistakeHandler;
+
+		private Board.Board _board;
+		private List<CellDisplayData> _cellDisplayDataList;
+		private InputNumbers _inputNumbers;
 
 		private ICell _selectedCell => _board.GetCell(_selectedCellIndex);
 		private int _selectedCellIndex;
 
-		public GameplayPanelModel(
-			GameManager gameManager,
+		public GameplayPanelModel(GameManager gameManager,
 			SelectedGameSettings selectedGameSettings,
-			SaveManager saveManager,
-			Board.Board board)
+			SaveManager saveManager)
 		{
 			_gameManager = gameManager;
 			_selectedGameSettings = selectedGameSettings;
 			_saveManager = saveManager;
-			_board = board;
+
+			_mistakeHandler = new MistakeHandler.MistakeHandler(0, 3); // todo: move max mistakes to global settings
+		}
+
+		public void Selected(object parameters)
+		{
+			GameplayPanelParameters gameplayPanelParameters = (GameplayPanelParameters)parameters;
+			_board = gameplayPanelParameters.Board;
 
 			_cellDisplayDataList = new List<CellDisplayData>(new CellDisplayData[_board.GetRowsLength() * _board.GetRowsLength()]);
 
@@ -47,7 +53,6 @@ namespace UI.Gameplay
 			_selectedCellIndex = random.Next(0, _cellDisplayDataList.Count);
 
 			_inputNumbers = new InputNumbers(Rows);
-			_mistakeHandler = new MistakeHandler.MistakeHandler(0, 3); // todo: move max mistakes to global settings
 
 			RefreshAvailableInputNumbers();
 			RefreshCellDisplays();
@@ -56,7 +61,7 @@ namespace UI.Gameplay
 		public void ReturnToMenu()
 		{
 			List<SerializableCell> cells = _board.GetSerializableCells();
-			_saveManager.Save(_selectedGameSettings, cells);
+			_saveManager.Save(_selectedGameSettings.SudokuType, _selectedGameSettings.Difficulty, cells);
 
 			_gameManager.OpenMainMenuPanel();
 		}
@@ -90,7 +95,7 @@ namespace UI.Gameplay
 			}
 
 			List<SerializableCell> cells = _board.GetSerializableCells();
-			_saveManager.Save(_selectedGameSettings, cells);
+			_saveManager.Save(_selectedGameSettings.SudokuType, _selectedGameSettings.Difficulty, cells);
 
 			RefreshState();
 		}
@@ -108,7 +113,7 @@ namespace UI.Gameplay
 			_board.CleanCell(_selectedCell.Row, _selectedCell.Column);
 
 			List<SerializableCell> cells = _board.GetSerializableCells();
-			_saveManager.Save(_selectedGameSettings, cells);
+			_saveManager.Save(_selectedGameSettings.SudokuType, _selectedGameSettings.Difficulty, cells);
 
 			RefreshState();
 		}

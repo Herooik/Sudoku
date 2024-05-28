@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Board;
+using Cells;
 using Configs;
 using Saves;
 using Solver;

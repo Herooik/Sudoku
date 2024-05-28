@@ -48,14 +48,16 @@ namespace UI.Menu
 				SudokuType.TWELVE_BY_TWELVE,
 				SudokuType.SIXTEEN_BY_SIXTEEN,
 			};
+		}
 
+		public void Selected()
+		{
 			SelectedDifficulty = 0;
 			foreach (SudokuDifficulty difficulty in _difficulties.Where(d => d == _selectedGameSettings.Difficulty))
 			{
 				SelectedDifficulty = _difficulties.IndexOf(difficulty);
 				break;
 			}
-
 			SelectedType = 0;
 			foreach (SudokuType sudokuType in _types.Where(t => t == _selectedGameSettings.SudokuType))
 			{
